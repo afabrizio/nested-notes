@@ -8,9 +8,71 @@
     <title>Nested Notes</title>
   </head>
   <body>
-    <div id="navbar">
-      <span id="Logo">Nested Notes</span>
+    <div class="container-fluid">
+      <div id="navbar" class="row">
+        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"></div>
+        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4" id="logo">
+          <img src="logo.png"/>
+        </div>
+        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"></div>
+      </div>
+      <div class="row" id="user-environment">
+        <!--NOTES-->
+        <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10" id="notes">
+          <div class="row" id="notes-header">
+            <div class="row-num col-xs-1 col-sm-1 col-md-1 col-lg-1">
+              Row #
+            </div>
+            <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
+              Orders
+            </div>
+            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+            </div>
+          </div>
+          <!--Reusable react classes start here:-->
+          <div class="row">
+            <div class="row-num col-xs-1 col-sm-1 col-md-1 col-lg-1">
+              <span id="row-num">1</span>
+            </div>
+            <div class="order-nums col-xs-1 col-sm-1 col-md-1 col-lg-1">
+              [<span>0</span>]
+            </div>
+            <div class="text col-xs-10 col-sm-10 col-md-10 col-lg-10">
+              <input/>
+            </div>
+          </div>
+          <!--Reusable react classes end here.-->
+        </div>
+        <!--TOOLS -->
+        <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2" id="tools">
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="nesting-options">
+            <b>Nesting Options</b>
+          </div>
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <button id="select-text">Select Text</button>
+          </div>
+          <div id="slider" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <span class="fa fa-angle-up fa-2x"></span>
+            <label class="switch">
+              <input type="checkbox">
+              <span class="slider round"></span>
+            </label>
+            <span class="fa fa-angle-down fa-2x"></span>
+          </div>
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <button id="add-nest">Add Nest</button>
+          </div>
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="order-options">
+            <b>Order Options</b>
+          </div>
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <button id="select-order">Select Order</button>
+          </div>
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <button id="delete-order">Delete Order</button>
+          </div>
+        </div>
+      </div>
     </div>
-    <script src="bundle.js"></script>
   </body>
 </html>
