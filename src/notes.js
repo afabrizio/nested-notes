@@ -2,19 +2,30 @@ const React = require('react');
 const {connect} = require('react-redux');
 
 const Line  = ({isFirstLine, lines, line}) => {
-  console.log(lines);
+
+  // function reactLine(aLine) {
+  //   const row = <span>{aLine.id[0]}</span>;
+  //   const order= <span>{aLine.id[1]}</span>;
+  //   const words= aLine.stringParts.map((word) => <span>{word + ' '}</span> );
+  //   return (
+  //     <div>
+  //       {row}
+  //       {order}
+  //       {words}
+  //     </div>
+  //   )
+  // }
+  // console.log(reactLine(lines[0]));
+
   return (
     <div>
-      {for (var i=0; i<lines.length; i++) {
-        var stringParts = lines[i].stringParts;
+      <div>
         <div>
           <span>{'ROW '}</span>
           <span>{'ORDER'}</span>
-          {stringParts.forEach((word) =>
-            <span>{word + ' '}</span>)
-          }
+          <span>{' word' + ' '}</span>
         </div>
-      }}
+      </div>
       <div>
         <input className="user-input"/>
       </div>
