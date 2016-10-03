@@ -3,28 +3,31 @@ const {connect} = require('react-redux');
 
 const Line  = ({isFirstLine, lines, line}) => {
 
-  // function reactLine(aLine) {
-  //   const row = <span>{aLine.id[0]}</span>;
-  //   const order= <span>{aLine.id[1]}</span>;
-  //   const words= aLine.stringParts.map((word) => <span>{word + ' '}</span> );
-  //   return (
-  //     <div>
-  //       {row}
-  //       {order}
-  //       {words}
-  //     </div>
-  //   )
-  // }
-  // console.log(reactLine(lines[0]));
+  function makeReactLine(line) {
+    const row = <span>{line.id[0]}</span>;
+    const order= <span>{line.id[1]}</span>;
+    const words= line.stringParts.map((word) => <span>{word + ' '}</span> );
+    return (
+      <div>
+        {row}
+        {order}
+        {words}
+      </div>
+    )
+  }
+
+  function makeReactLines(lines) {
+    return (
+      lines.forEach(
+        (line) => ( makeReactLine(line) )
+      )
+    )
+  }
 
   return (
     <div>
       <div>
-        <div>
-          <span>{'ROW '}</span>
-          <span>{'ORDER'}</span>
-          <span>{' word' + ' '}</span>
-        </div>
+        {makeReactLines(lines)}
       </div>
       <div>
         <input className="user-input"/>

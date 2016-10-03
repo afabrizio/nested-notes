@@ -54,43 +54,34 @@
 	var Provider = _require.Provider;
 
 	var store = __webpack_require__(195);
-	var Line = __webpack_require__(198);
-
-	var state = store.getState();
-	var line = {};
+	var Notes = __webpack_require__(198);
 
 	document.addEventListener('click', function (event) {
 	  switch (event.target.className) {
 	    case 'user-input':
 	      event.target.addEventListener('keyup', function (event) {
 	        if (event.keyCode === 13) {
-	          //find which unique order value this belongs to:
-	          var children = event.target.parentNode.parentNode.childNodes;
-	          var row = parseInt(children[1].textContent);
-	          //store the user input string:
+	          //Gather and store the line of text the user just input:
 	          var inputString = event.target.value;
-	          line = {
-	            id: [row, 'order', 'instance'],
+	          var line = {
+	            id: ['row', 'order', 'instance'],
 	            stringParts: inputString.split(' ')
 	          };
-	          //delete the <input> element
-	          //dispatch an action to create the React 'line' class and render it to the page.
+	          store.dispatch({ type: 'NEW_LINE_FROM_USER', payload: line });
 	        }
 	      });
 	      break;
-	    case 'begin':
-	      var theBeginBtn = document.getElementById('begin-btn');
-	      theBeginBtn.parentNode.removeChild(theBeginBtn);
-	      store.dispatch({ type: 'FIRST_INPUT' });
+
+	    case 'console-state':
+	      console.log(store.getState());
 	    default:
 	  }
-	  console.log(line);
 	});
 
 	ReactDOM.render(React.createElement(
 	  Provider,
 	  { store: store },
-	  React.createElement(Line, null)
+	  React.createElement(Notes, null)
 	), document.getElementById('notes'));
 
 /***/ },
@@ -23076,30 +23067,32 @@
 	'use strict';
 
 	var initialState = {
+	  lines: [],
+	  isFirstLine: true,
 	  line: {
 	    id: [0, 0],
 	    words: []
 	  }
 	};
 
-	var recieveLine = function recieveLine() {
+	var receiveLine = function receiveLine() {
 	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
 	  var action = arguments[1];
 
 	  switch (action.type) {
-	    case 'FIRST_INPUT':
-	      state = Object.assign({}, state, { isFirstLine: true });
-	      break;
-
-	    case 'RECEIVE-LINE':
-	      state = Object.assign({}, state, { line: action.payload, isFirstLine: false });
+	    case 'NEW_LINE_FROM_USER':
+	      state = Object.assign({}, state, {
+	        line: action.payload,
+	        isFirstLine: false,
+	        lines: state.lines.concat(action.payload)
+	      });
 	      break;
 	    default:
 	  }
 	  return state;
 	};
 
-	module.exports = recieveLine;
+	module.exports = receiveLine;
 
 /***/ },
 /* 198 */
@@ -23116,57 +23109,64 @@
 
 	var Line = function Line(_ref) {
 	  var isFirstLine = _ref.isFirstLine;
+	  var lines = _ref.lines;
 	  var line = _ref.line;
 
-	  console.log(isFirstLine);
-	  if (isFirstLine === true) {
+
+	  function makeReactLine(line) {
+	    var row = React.createElement(
+	      'span',
+	      null,
+	      aLine.id[0]
+	    );
+	    var order = React.createElement(
+	      'span',
+	      null,
+	      aLine.id[1]
+	    );
+	    var words = aLine.stringParts.map(function (word) {
+	      return React.createElement(
+	        'span',
+	        null,
+	        word + ' '
+	      );
+	    });
 	    return React.createElement(
 	      'div',
 	      null,
-	      React.createElement('input', null)
+	      row,
+	      order,
+	      words
 	    );
 	  }
+
+	  function makeReactLines(lines) {
+	    return lines.forEach(function (line) {
+	      return makeReactLine(line);
+	    });
+	  }
+
 	  return React.createElement(
 	    'div',
 	    null,
-	    '// ',
 	    React.createElement(
 	      'div',
 	      null,
-	      '//   ',
-	      React.createElement(
-	        'span',
-	        null,
-	        ' ' + line.id[0] + ' '
-	      ),
-	      '//   ',
-	      React.createElement(
-	        'span',
-	        null,
-	        ' ' + line.id[1] + ' '
-	      ),
-	      '//   ',
-	      line.words.forEach(function (word) {
-	        return React.createElement(
-	          'span',
-	          null,
-	          word + ' '
-	        );
-	      }),
-	      '// '
+	      makeReactLines(lines)
 	    ),
 	    React.createElement(
 	      'div',
 	      null,
-	      React.createElement('input', null)
+	      React.createElement('input', { className: 'user-input' })
 	    )
 	  );
 	};
 
 	var mapStateToProps = function mapStateToProps(state) {
 	  return {
-	    isFirstLine: state.isFirstLine,
-	    line: state.line
+	    isFirstLine: state.receiveLine.isFirstLine,
+	    lines: state.receiveLine.lines,
+	    line: state.receiveLine.line
 	  };
 	};
 
