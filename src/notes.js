@@ -7,7 +7,7 @@ const Line  = ({lines, dispatch}) => {
   if (userInputField) {
     userInputField.value='';
   }
-  
+
   return (
     <div>
       <div>

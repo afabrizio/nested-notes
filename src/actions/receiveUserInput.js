@@ -4,7 +4,7 @@ function receiveUserInput(e) {
   if (e.keyCode === 13) {
     const store = require('./../store.js');
     let state = store.getState();
-    let row = state.receiveLine.lines.length;
+    let row = state.receiveLine.lines.length + 1;
     //Gather and store the line of text the user just input:
     let inputString = e.target.value;
     var newLine = {

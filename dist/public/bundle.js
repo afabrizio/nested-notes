@@ -68,7 +68,7 @@
 	  Provider,
 	  { store: store },
 	  React.createElement(Notes, null)
-	), document.getElementById('notes'));
+	), document.getElementById('user-notes'));
 
 /***/ },
 /* 1 */
@@ -23091,6 +23091,13 @@
 	
 	var Line = function Line(_ref) {
 	  var lines = _ref.lines;
+	  var dispatch = _ref.dispatch;
+	
+	  var userInputField = document.getElementById('user-input');
+	  if (userInputField) {
+	    userInputField.value = '';
+	  }
+	
 	  return React.createElement(
 	    'div',
 	    null,
@@ -23100,33 +23107,50 @@
 	      lines.map(function (line, key) {
 	        return React.createElement(
 	          'div',
-	          { key: key },
+	          { className: 'row' },
 	          React.createElement(
-	            'span',
-	            { key: key },
-	            'row',
-	            line.id[0]
-	          ),
-	          React.createElement(
-	            'span',
-	            { key: key },
-	            'order',
-	            line.id[1]
-	          ),
-	          line.stringParts.map(function (word, key) {
-	            return React.createElement(
+	            'div',
+	            { className: 'col-xs-1 col-sm-1 col-md-1 col-lg-1' },
+	            React.createElement(
 	              'span',
 	              { key: key },
-	              word + ' '
-	            );
-	          })
+	              line.id[0]
+	            )
+	          ),
+	          React.createElement(
+	            'div',
+	            { className: 'col-xs-1 col-sm-1 col-md-1 col-lg-1' },
+	            React.createElement(
+	              'span',
+	              { key: key * -1 },
+	              line.id[1]
+	            )
+	          ),
+	          React.createElement(
+	            'div',
+	            { className: 'col-xs-10 col-sm-10 col-md-10 col-lg-10' },
+	            line.stringParts.map(function (word, key) {
+	              return React.createElement(
+	                'span',
+	                { key: key },
+	                word + ' '
+	              );
+	            })
+	          )
 	        );
 	      })
 	    ),
 	    React.createElement(
 	      'div',
-	      null,
-	      React.createElement('input', { onKeyUp: store.dispatch(receiveUserInput(e)), className: 'user-input' })
+	      { className: 'row' },
+	      React.createElement('div', { className: 'col-xs-2 col-sm-2 col-md-2 col-lg-2' }),
+	      React.createElement(
+	        'div',
+	        { className: 'col-xs-10 col-sm-10 col-md-10 col-lg-10' },
+	        React.createElement('input', { id: 'user-input', style: { width: '100%' }, onKeyUp: function onKeyUp(e) {
+	            return dispatch(receiveUserInput(e));
+	          } })
+	      )
 	    )
 	  );
 	};
@@ -23141,21 +23165,28 @@
 
 /***/ },
 /* 199 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	function receiveUserInput(event) {
-	  if (event.keyCode === 13) {
+	function receiveUserInput(e) {
+	  if (e.keyCode === 13) {
+	    var store = __webpack_require__(195);
+	    var state = store.getState();
+	    var row = state.receiveLine.lines.length;
 	    //Gather and store the line of text the user just input:
-	    var inputString = event.target.value;
+	    var inputString = e.target.value;
 	    var newLine = {
-	      id: ['row', 'order', 'instance'],
+	      id: [row, 0, 'instance'],
 	      stringParts: inputString.split(' ')
 	    };
 	    return { type: 'NEW_LINE_FROM_USER', payload: newLine };
+	  } else {
+	    return { type: "UNHANDLED" };
 	  }
 	}
+	
+	module.exports = receiveUserInput;
 
 /***/ }
 /******/ ]);

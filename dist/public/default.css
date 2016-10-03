@@ -26,10 +26,28 @@
   font-size: 1.5vmin;
 }
 
-#tools > div {
-  margin-top: 2vmin;
+#tools > div > div {
+  padding-top: 2vmin;
+  padding-bottom: .5vmin;
 }
 
+.grayed {
+  opacity: .3;
+}
+
+#nesting-options {
+  background-color: lightgray;
+  border-bottom-style: solid;
+  border-bottom-width: thin;
+}
+
+#order-options {
+  background-color: lightgray;
+  border-bottom-style: solid;
+  border-bottom-width: thin;
+  border-top-style: solid;
+  border-top-width: thin;
+}
 
 /* The switch - the box around the slider */
 .switch {
