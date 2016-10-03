@@ -59,15 +59,16 @@
 	document.addEventListener('click', function (event) {
 	  switch (event.target.className) {
 	    case 'user-input':
+	      event.target.className = ''; //prevents addition of multiple listeners.
 	      event.target.addEventListener('keyup', function (event) {
 	        if (event.keyCode === 13) {
 	          //Gather and store the line of text the user just input:
 	          var inputString = event.target.value;
-	          var line = {
+	          var newLine = {
 	            id: ['row', 'order', 'instance'],
 	            stringParts: inputString.split(' ')
 	          };
-	          store.dispatch({ type: 'NEW_LINE_FROM_USER', payload: line });
+	          store.dispatch({ type: 'NEW_LINE_FROM_USER', payload: newLine });
 	        }
 	      });
 	      break;
@@ -23068,11 +23069,7 @@
 
 	var initialState = {
 	  lines: [],
-	  isFirstLine: true,
-	  line: {
-	    id: [0, 0],
-	    words: []
-	  }
+	  isFirstLine: true
 	};
 
 	var receiveLine = function receiveLine() {
@@ -23082,7 +23079,6 @@
 	  switch (action.type) {
 	    case 'NEW_LINE_FROM_USER':
 	      state = Object.assign({}, state, {
-	        line: action.payload,
 	        isFirstLine: false,
 	        lines: state.lines.concat(action.payload)
 	      });
@@ -23108,51 +23104,38 @@
 
 
 	var Line = function Line(_ref) {
-	  var isFirstLine = _ref.isFirstLine;
 	  var lines = _ref.lines;
-	  var line = _ref.line;
-
-
-	  function makeReactLine(line) {
-	    var row = React.createElement(
-	      'span',
-	      null,
-	      aLine.id[0]
-	    );
-	    var order = React.createElement(
-	      'span',
-	      null,
-	      aLine.id[1]
-	    );
-	    var words = aLine.stringParts.map(function (word) {
-	      return React.createElement(
-	        'span',
-	        null,
-	        word + ' '
-	      );
-	    });
-	    return React.createElement(
-	      'div',
-	      null,
-	      row,
-	      order,
-	      words
-	    );
-	  }
-
-	  function makeReactLines(lines) {
-	    return lines.forEach(function (line) {
-	      return makeReactLine(line);
-	    });
-	  }
-
 	  return React.createElement(
 	    'div',
 	    null,
 	    React.createElement(
 	      'div',
 	      null,
-	      makeReactLines(lines)
+	      lines.map(function (line, key) {
+	        return React.createElement(
+	          'div',
+	          { key: key },
+	          React.createElement(
+	            'span',
+	            { key: key },
+	            'row',
+	            line.id[0]
+	          ),
+	          React.createElement(
+	            'span',
+	            { key: key },
+	            'order',
+	            line.id[1]
+	          ),
+	          line.stringParts.map(function (word, key) {
+	            return React.createElement(
+	              'span',
+	              { key: key },
+	              word + ' '
+	            );
+	          })
+	        );
+	      })
 	    ),
 	    React.createElement(
 	      'div',
@@ -23164,9 +23147,7 @@
 
 	var mapStateToProps = function mapStateToProps(state) {
 	  return {
-	    isFirstLine: state.receiveLine.isFirstLine,
-	    lines: state.receiveLine.lines,
-	    line: state.receiveLine.line
+	    lines: state.receiveLine.lines
 	  };
 	};
 

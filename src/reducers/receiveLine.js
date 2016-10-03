@@ -2,11 +2,6 @@ var initialState =
 {
   lines: [],
   isFirstLine: true,
-  line:
-    {
-      id: [0,0],
-      words: []
-    }
 }
 
 const receiveLine = (state=initialState, action) => {
@@ -14,7 +9,6 @@ const receiveLine = (state=initialState, action) => {
     case 'NEW_LINE_FROM_USER':
       state = Object.assign({}, state,
         {
-          line: action.payload,
           isFirstLine: false,
           lines: state.lines.concat(action.payload)
         }

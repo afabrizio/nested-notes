@@ -1,46 +1,28 @@
 const React = require('react');
 const {connect} = require('react-redux');
 
-const Line  = ({isFirstLine, lines, line}) => {
-
-  function makeReactLine(line) {
-    const row = <span>{line.id[0]}</span>;
-    const order= <span>{line.id[1]}</span>;
-    const words= line.stringParts.map((word) => <span>{word + ' '}</span> );
-    return (
-      <div>
-        {row}
-        {order}
-        {words}
-      </div>
-    )
-  }
-
-  function makeReactLines(lines) {
-    return (
-      lines.forEach(
-        (line) => ( makeReactLine(line) )
-      )
-    )
-  }
-
-  return (
+const Line  = ({lines}) =>
     <div>
       <div>
-        {makeReactLines(lines)}
+        {lines.map(
+          (line, key) =>
+            <div key={key}>
+              <span key={key}>row{line.id[0]}</span>
+              <span key={key}>order{line.id[1]}</span>
+              {line.stringParts.map(
+                (word, key) => <span key={key}>{word + ' '}</span>
+              )}
+            </div>
+        )}
       </div>
       <div>
         <input className="user-input"/>
       </div>
     </div>
-  )
-}
 
 const mapStateToProps = (state) => {
   return {
-    isFirstLine: state.receiveLine.isFirstLine,
-    lines: state.receiveLine.lines,
-    line: state.receiveLine.line
+    lines: state.receiveLine.lines
   }
 }
 
