@@ -1,14 +1,15 @@
 const React = require('react');
 const {connect} = require('react-redux');
+const getSelection = require('./actions/getSelection.js');
 
-const Tools = () => {
+const Tools = ({dispatch}) => {
   return (
     <div>
       <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="nesting-options">
         <b>Nesting Options</b>
       </div>
       <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-        <button id="select-text" className="visible">Select Text</button>
+        <button id="select-text" className="visible" onClick={()=>dispatch(getSelection())}>Select Text</button>
       </div>
       <div id="slider" className="col-xs-12 col-sm-12 col-md-12 col-lg-12 grayed">
         <span className="fa fa-angle-up fa-2x"></span>

@@ -54,8 +54,8 @@
 	var Provider = _require.Provider;
 	
 	var store = __webpack_require__(195);
-	var Notes = __webpack_require__(198);
-	var Tools = __webpack_require__(200);
+	var Notes = __webpack_require__(199);
+	var Tools = __webpack_require__(201);
 	
 	document.addEventListener('click', function (event) {
 	  switch (event.target.className) {
@@ -23046,9 +23046,11 @@
 	var combineReducers = _require.combineReducers;
 	
 	var receiveInput = __webpack_require__(197);
+	var executeToolbarCommand = __webpack_require__(198);
 	
 	var reducer = combineReducers({
-	  receiveInput: receiveInput
+	  receiveInput: receiveInput,
+	  executeToolbarCommand: executeToolbarCommand
 	});
 	
 	module.exports = reducer;
@@ -23113,6 +23115,33 @@
 
 /***/ },
 /* 198 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	var executeToolbarCommand = function executeToolbarCommand() {
+	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	  var action = arguments[1];
+	
+	  switch (action.type) {
+	    case 'GET_SELECTED_ELEMENTS':
+	      var selectedRange = document.getSelection();
+	      var selectedStart = selectedRange.baseNode.parentNode;
+	      var selectedEnd = selectedRange.focusNode.parentNode;
+	      console.log(selectedStart);
+	      console.log(selectedEnd);
+	      console.log(selectedRange.getRangeAt(0));
+	      state = Object.assign({}, state, { selected: selectedStart });
+	      break;
+	    default:
+	  }
+	  return state;
+	};
+	
+	module.exports = executeToolbarCommand;
+
+/***/ },
+/* 199 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23123,7 +23152,7 @@
 	
 	var connect = _require.connect;
 	
-	var receiveUserInput = __webpack_require__(199);
+	var receiveUserInput = __webpack_require__(200);
 	
 	var mapStateToProps = function mapStateToProps(state) {
 	  return {
@@ -23200,7 +23229,7 @@
 	module.exports = connect(mapStateToProps)(newText);
 
 /***/ },
-/* 199 */
+/* 200 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23228,7 +23257,7 @@
 	module.exports = receiveUserInput;
 
 /***/ },
-/* 200 */
+/* 201 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23239,8 +23268,11 @@
 	
 	var connect = _require.connect;
 	
+	var getSelection = __webpack_require__(202);
 	
-	var Tools = function Tools() {
+	var Tools = function Tools(_ref) {
+	  var dispatch = _ref.dispatch;
+	
 	  return React.createElement(
 	    'div',
 	    null,
@@ -23258,7 +23290,9 @@
 	      { className: 'col-xs-12 col-sm-12 col-md-12 col-lg-12' },
 	      React.createElement(
 	        'button',
-	        { id: 'select-text', className: 'visible' },
+	        { id: 'select-text', className: 'visible', onClick: function onClick() {
+	            return dispatch(getSelection());
+	          } },
 	        'Select Text'
 	      )
 	    ),
@@ -23318,6 +23352,18 @@
 	};
 	
 	module.exports = connect(mapStateToProps)(Tools);
+
+/***/ },
+/* 202 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	var getSelection = function getSelection() {
+	  return { type: 'GET_SELECTED_ELEMENTS' };
+	};
+	
+	module.exports = getSelection;
 
 /***/ }
 /******/ ]);
