@@ -23123,18 +23123,49 @@
 	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	  var action = arguments[1];
 	
-	  switch (action.type) {
-	    case 'GET_SELECTED_ELEMENTS':
-	      var selectedRange = document.getSelection();
-	      var selectedStart = selectedRange.baseNode.parentNode;
-	      var selectedEnd = selectedRange.focusNode.parentNode;
-	      console.log(selectedStart);
-	      console.log(selectedEnd);
-	      console.log(selectedRange.getRangeAt(0));
-	      state = Object.assign({}, state, { selected: selectedStart });
-	      break;
-	    default:
-	  }
+	  (function () {
+	    switch (action.type) {
+	      case 'GET_SELECTED_ELEMENTS':
+	        var middleElementAccessors = function middleElementAccessors(length, selectedRange) {
+	          var middleElements = [];
+	          var baseAccessorString = 'selectedRange.anchorNode.parentNode';
+	          var additionalAccessorString = '.nextSibling';
+	          var middleElementsAccessors = [];
+	          for (var i = 1; i <= length; i++) {
+	            var accessor = baseAccessorString;
+	            for (var j = 0; j < i; j++) {
+	              accessor += additionalAccessorString;
+	            }
+	            middleElementsAccessors.push(accessor);
+	          }
+	          return middleElementsAccessors;
+	        };
+	
+	        var selection = [];
+	        var selectedRange = document.getSelection();
+	        var selectedStart = selectedRange.anchorNode.parentNode;
+	        var selectedEnd = selectedRange.focusNode.parentNode;
+	        var selectedLength = selectedRange.toString().split(' ').length;
+	        if (selectedLength === 1) {
+	          selection.push(selectedStart);
+	        } else {
+	          var middleElements = middleElementAccessors(selectedLength - 2, selectedRange).map(function (accessor) {
+	            return eval(accessor);
+	          });
+	          var nextElement = selectedStart.nextSibling;
+	          selection.push(selectedStart);
+	          middleElements.forEach(function (element) {
+	            return selection.push(element);
+	          });
+	          selection.push(selectedEnd);
+	        }
+	
+	        state = Object.assign({}, state, { selected: selection });
+	        break;
+	      default:
+	    }
+	  })();
+	
 	  return state;
 	};
 	
