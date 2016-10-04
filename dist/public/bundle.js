@@ -23119,8 +23119,13 @@
 
 	'use strict';
 	
+	var initialState = {
+	  selected: [],
+	  visibleTool: 'select-text'
+	};
+	
 	var executeToolbarCommand = function executeToolbarCommand() {
-	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
 	  var action = arguments[1];
 	
 	  (function () {
@@ -23160,8 +23165,17 @@
 	          selection.push(selectedEnd);
 	        }
 	
-	        state = Object.assign({}, state, { selected: selection });
+	        state = Object.assign({}, state, {
+	          selected: selection
+	        });
 	        break;
+	
+	      case 'GUIDE_TO_NEST_DIRECTION_BTN':
+	        state = Object.assign({}, state, {
+	          visibleTool: 'nest-direction'
+	        });
+	        break;
+	
 	      default:
 	    }
 	  })();
@@ -23303,6 +23317,7 @@
 	
 	var Tools = function Tools(_ref) {
 	  var dispatch = _ref.dispatch;
+	  var visibleTool = _ref.visibleTool;
 	
 	  return React.createElement(
 	    'div',
@@ -23321,15 +23336,17 @@
 	      { className: 'col-xs-12 col-sm-12 col-md-12 col-lg-12' },
 	      React.createElement(
 	        'button',
-	        { id: 'select-text', className: 'visible', onClick: function onClick() {
-	            return dispatch(getSelection());
-	          } },
+	        { id: 'select-text', onClick: function onClick() {
+	            return getSelection(dispatch);
+	          },
+	          style: { opacity: visibleTool === 'select-text' || false ? '1' : '.3' } },
 	        'Select Text'
 	      )
 	    ),
 	    React.createElement(
 	      'div',
-	      { id: 'slider', className: 'col-xs-12 col-sm-12 col-md-12 col-lg-12 grayed' },
+	      { id: 'slider', className: 'col-xs-12 col-sm-12 col-md-12 col-lg-12',
+	        style: { opacity: visibleTool === 'nest-direction' || false ? '1' : '.3' } },
 	      React.createElement('span', { className: 'fa fa-angle-up fa-2x' }),
 	      React.createElement(
 	        'label',
@@ -23344,7 +23361,8 @@
 	      { className: 'col-xs-12 col-sm-12 col-md-12 col-lg-12' },
 	      React.createElement(
 	        'button',
-	        { id: 'add-nest', className: 'grayed' },
+	        { id: 'add-nest',
+	          style: { opacity: visibleTool === 'nest-direction' || false ? '1' : '.3' } },
 	        'Add Nest'
 	      )
 	    ),
@@ -23379,7 +23397,9 @@
 	};
 	
 	var mapStateToProps = function mapStateToProps(state) {
-	  return {};
+	  return {
+	    visibleTool: state.executeToolbarCommand.visibleTool
+	  };
 	};
 	
 	module.exports = connect(mapStateToProps)(Tools);
@@ -23390,8 +23410,9 @@
 
 	'use strict';
 	
-	var getSelection = function getSelection() {
-	  return { type: 'GET_SELECTED_ELEMENTS' };
+	var getSelection = function getSelection(dispatch) {
+	  dispatch({ type: 'GET_SELECTED_ELEMENTS' });
+	  dispatch({ type: 'GUIDE_TO_NEST_DIRECTION_BTN' });
 	};
 	
 	module.exports = getSelection;

@@ -1,4 +1,10 @@
-const executeToolbarCommand = (state = {}, action) => {
+const initialState =
+  {
+    selected: [],
+    visibleTool: 'select-text'
+  }
+
+const executeToolbarCommand = (state = initialState, action) => {
   switch (action.type) {
     case 'GET_SELECTED_ELEMENTS':
       function middleElementAccessors(length, selectedRange) {
@@ -32,8 +38,21 @@ const executeToolbarCommand = (state = {}, action) => {
         selection.push(selectedEnd);
       }
 
-      state = Object.assign({}, state, {selected: selection});
+      state = Object.assign({}, state,
+        {
+          selected: selection
+        }
+      );
       break;
+
+    case 'GUIDE_TO_NEST_DIRECTION_BTN':
+      state = Object.assign({}, state,
+        {
+          visibleTool: 'nest-direction'
+        }
+      );
+      break;
+
     default:
   }
   return state;
