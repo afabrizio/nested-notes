@@ -2,7 +2,13 @@ const React = require('react');
 const {connect} = require('react-redux');
 const receiveUserInput = require('./actions/receiveUserInput.js');
 
-const Line  = ({lines, dispatch}) => {
+const mapStateToProps = (state) => {
+  return {
+    notes: state.receiveInput.notes
+  }
+}
+
+const newText  = ({notes, dispatch}) => {
   var userInputField = document.getElementById('user-input');
   if (userInputField) {
     userInputField.value='';
@@ -11,17 +17,17 @@ const Line  = ({lines, dispatch}) => {
   return (
     <div>
       <div>
-        {lines.map(
-          (line, key) =>
+        {notes.map(
+          (row, key) =>
             <div className='row'>
               <div className='col-xs-1 col-sm-1 col-md-1 col-lg-1'>
-                <span key={key}>{line.id[0]}</span>
+                <span key={key}>{row.order[0].location[0]}</span>
               </div>
               <div className='col-xs-1 col-sm-1 col-md-1 col-lg-1'>
-                <span key={key}>{line.id[1]}</span>
+                <span key={key}>{row.order[0].location[1]}</span>
               </div>
               <div className='col-xs-10 col-sm-10 col-md-10 col-lg-10'>
-                {line.stringParts.map(
+                {row.order[0].text.map(
                   (word, key) => <span key={key}>{word + ' '}</span>
                 )}
               </div>
@@ -39,10 +45,4 @@ const Line  = ({lines, dispatch}) => {
   )
 }
 
-const mapStateToProps = (state) => {
-  return {
-    lines: state.receiveLine.lines
-  }
-}
-
-module.exports = connect(mapStateToProps)(Line);
+module.exports = connect(mapStateToProps)(newText);

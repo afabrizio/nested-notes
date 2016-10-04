@@ -1,9 +1,9 @@
 const {combineReducers} = require('redux');
-const receiveLine = require('./receiveLine.js');
+const receiveInput = require('./receiveInput.js');
 
 const reducer = combineReducers(
   {
-    receiveLine: receiveLine
+    receiveInput: receiveInput
   }
 );
 

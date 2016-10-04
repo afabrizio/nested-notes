@@ -55,6 +55,7 @@
 	
 	var store = __webpack_require__(195);
 	var Notes = __webpack_require__(198);
+	var Tools = __webpack_require__(200);
 	
 	document.addEventListener('click', function (event) {
 	  switch (event.target.className) {
@@ -69,6 +70,12 @@
 	  { store: store },
 	  React.createElement(Notes, null)
 	), document.getElementById('user-notes'));
+	
+	ReactDOM.render(React.createElement(
+	  Provider,
+	  { store: store },
+	  React.createElement(Tools, null)
+	), document.getElementById('tools'));
 
 /***/ },
 /* 1 */
@@ -23038,10 +23045,10 @@
 	
 	var combineReducers = _require.combineReducers;
 	
-	var receiveLine = __webpack_require__(197);
+	var receiveInput = __webpack_require__(197);
 	
 	var reducer = combineReducers({
-	  receiveLine: receiveLine
+	  receiveInput: receiveInput
 	});
 	
 	module.exports = reducer;
@@ -23052,28 +23059,57 @@
 
 	'use strict';
 	
-	var initialState = {
-	  lines: [],
-	  isFirstLine: true
+	var blankRow = {
+	  order: [{
+	    text: [],
+	    location: [0, 0, 0]
+	  }]
 	};
 	
-	var receiveLine = function receiveLine() {
+	var initialState = {
+	  notes: [blankRow]
+	};
+	
+	var receiveInput = function receiveInput() {
 	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
 	  var action = arguments[1];
 	
 	  switch (action.type) {
-	    case 'NEW_LINE_FROM_USER':
-	      state = Object.assign({}, state, {
-	        isFirstLine: false,
-	        lines: state.lines.concat(action.payload)
-	      });
+	    case 'NEW_ROW_FROM_USER':
+	      var targetRow = action.targetLocation[0] + 1;
+	      var currentNumRows = state.notes.length;
+	
+	      // //handles the first case:
+	      // if( (currentNumRows===1) && (state.notes[0].order[0].text[1]=== undefined) ) {
+	      //   targetRow = action.targetLocation[0];
+	      // }
+	
+	      if (targetRow > currentNumRows) {
+	        state = Object.assign({}, state, {
+	          notes: state.notes.concat(action.payload)
+	        });
+	      } else {
+	        var temp = state.notes.concat();
+	        temp.splice(targetRow - 1, 1, action.payload);
+	        state = Object.assign({}, state, {
+	          notes: temp
+	        });
+	      }
+	      break;
+	
+	    case 'NEW_ORDER_FROM_USER':
+	
+	      break;
+	
+	    case 'NEW_SEQUENCE_FROM_USER':
+	
 	      break;
 	    default:
 	  }
 	  return state;
 	};
 	
-	module.exports = receiveLine;
+	module.exports = receiveInput;
 
 /***/ },
 /* 198 */
@@ -23089,8 +23125,14 @@
 	
 	var receiveUserInput = __webpack_require__(199);
 	
-	var Line = function Line(_ref) {
-	  var lines = _ref.lines;
+	var mapStateToProps = function mapStateToProps(state) {
+	  return {
+	    notes: state.receiveInput.notes
+	  };
+	};
+	
+	var newText = function newText(_ref) {
+	  var notes = _ref.notes;
 	  var dispatch = _ref.dispatch;
 	
 	  var userInputField = document.getElementById('user-input');
@@ -23104,7 +23146,7 @@
 	    React.createElement(
 	      'div',
 	      null,
-	      lines.map(function (line, key) {
+	      notes.map(function (row, key) {
 	        return React.createElement(
 	          'div',
 	          { className: 'row' },
@@ -23114,7 +23156,7 @@
 	            React.createElement(
 	              'span',
 	              { key: key },
-	              line.id[0]
+	              row.order[0].location[0]
 	            )
 	          ),
 	          React.createElement(
@@ -23122,14 +23164,14 @@
 	            { className: 'col-xs-1 col-sm-1 col-md-1 col-lg-1' },
 	            React.createElement(
 	              'span',
-	              { key: key * -1 },
-	              line.id[1]
+	              { key: key },
+	              row.order[0].location[1]
 	            )
 	          ),
 	          React.createElement(
 	            'div',
 	            { className: 'col-xs-10 col-sm-10 col-md-10 col-lg-10' },
-	            line.stringParts.map(function (word, key) {
+	            row.order[0].text.map(function (word, key) {
 	              return React.createElement(
 	                'span',
 	                { key: key },
@@ -23155,13 +23197,7 @@
 	  );
 	};
 	
-	var mapStateToProps = function mapStateToProps(state) {
-	  return {
-	    lines: state.receiveLine.lines
-	  };
-	};
-	
-	module.exports = connect(mapStateToProps)(Line);
+	module.exports = connect(mapStateToProps)(newText);
 
 /***/ },
 /* 199 */
@@ -23173,20 +23209,115 @@
 	  if (e.keyCode === 13) {
 	    var store = __webpack_require__(195);
 	    var state = store.getState();
-	    var row = state.receiveLine.lines.length;
+	    var row = state.receiveInput.notes.length;
+	    var targetLocation = [row, 0, 0];
 	    //Gather and store the line of text the user just input:
 	    var inputString = e.target.value;
-	    var newLine = {
-	      id: [row, 0, 'instance'],
-	      stringParts: inputString.split(' ')
+	    var newText = {
+	      order: [{
+	        text: inputString.split(' '),
+	        location: targetLocation
+	      }]
 	    };
-	    return { type: 'NEW_LINE_FROM_USER', payload: newLine };
+	    return { type: 'NEW_ROW_FROM_USER', targetLocation: targetLocation, payload: newText };
 	  } else {
 	    return { type: "UNHANDLED" };
 	  }
 	}
 	
 	module.exports = receiveUserInput;
+
+/***/ },
+/* 200 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var React = __webpack_require__(166);
+	
+	var _require = __webpack_require__(172);
+	
+	var connect = _require.connect;
+	
+	
+	var Tools = function Tools() {
+	  return React.createElement(
+	    'div',
+	    null,
+	    React.createElement(
+	      'div',
+	      { className: 'col-xs-12 col-sm-12 col-md-12 col-lg-12', id: 'nesting-options' },
+	      React.createElement(
+	        'b',
+	        null,
+	        'Nesting Options'
+	      )
+	    ),
+	    React.createElement(
+	      'div',
+	      { className: 'col-xs-12 col-sm-12 col-md-12 col-lg-12' },
+	      React.createElement(
+	        'button',
+	        { id: 'select-text', className: 'visible' },
+	        'Select Text'
+	      )
+	    ),
+	    React.createElement(
+	      'div',
+	      { id: 'slider', className: 'col-xs-12 col-sm-12 col-md-12 col-lg-12 grayed' },
+	      React.createElement('span', { className: 'fa fa-angle-up fa-2x' }),
+	      React.createElement(
+	        'label',
+	        { className: 'switch' },
+	        React.createElement('input', { type: 'checkbox' }),
+	        React.createElement('span', { className: 'slider round' })
+	      ),
+	      React.createElement('span', { className: 'fa fa-angle-down fa-2x' })
+	    ),
+	    React.createElement(
+	      'div',
+	      { className: 'col-xs-12 col-sm-12 col-md-12 col-lg-12' },
+	      React.createElement(
+	        'button',
+	        { id: 'add-nest', className: 'grayed' },
+	        'Add Nest'
+	      )
+	    ),
+	    React.createElement(
+	      'div',
+	      { className: 'col-xs-12 col-sm-12 col-md-12 col-lg-12', id: 'order-options' },
+	      React.createElement(
+	        'b',
+	        null,
+	        'Order Options'
+	      )
+	    ),
+	    React.createElement(
+	      'div',
+	      { className: 'col-xs-12 col-sm-12 col-md-12 col-lg-12' },
+	      React.createElement(
+	        'button',
+	        { id: 'select-order', className: 'grayed' },
+	        'Select Order'
+	      )
+	    ),
+	    React.createElement(
+	      'div',
+	      { className: 'col-xs-12 col-sm-12 col-md-12 col-lg-12' },
+	      React.createElement(
+	        'button',
+	        { id: 'delete-order', className: 'grayed' },
+	        'Delete Order'
+	      )
+	    )
+	  );
+	};
+	
+	var mapStateToProps = function mapStateToProps(state) {
+	  return {};
+	};
+	
+	module.exports = connect(mapStateToProps)(Tools);
 
 /***/ }
 /******/ ]);
