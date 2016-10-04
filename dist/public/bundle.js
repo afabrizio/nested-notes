@@ -23165,15 +23165,28 @@
 	          selection.push(selectedEnd);
 	        }
 	
-	        state = Object.assign({}, state, {
-	          selected: selection
-	        });
+	        state = Object.assign({}, state, { selected: selection });
 	        break;
 	
 	      case 'GUIDE_TO_NEST_DIRECTION_BTN':
-	        state = Object.assign({}, state, {
-	          visibleTool: 'nest-direction'
-	        });
+	        state = Object.assign({}, state, { visibleTool: 'nest-direction' });
+	        break;
+	
+	      case 'STORE_NEST_DIRECTION':
+	        var nestDirectionBtn = document.getElementById('nest-direction');
+	        if (nestDirectionBtn.className === 'nest-up') {
+	          state = Object.assign({}, state, { nestDirection: 'up' });
+	        } else {
+	          state = Object.assign({}, state, { nestDirection: 'down' });
+	        }
+	        break;
+	
+	      case 'SELECT_TEXT':
+	        state = Object.assign({}, state, { visibleTool: 'select-text' });
+	        break;
+	
+	      case 'ADD_NEST':
+	        state = Object.assign({}, state, {});
 	        break;
 	
 	      default:
@@ -23314,10 +23327,14 @@
 	var connect = _require.connect;
 	
 	var getSelection = __webpack_require__(202);
+	var addNest = __webpack_require__(203);
 	
 	var Tools = function Tools(_ref) {
 	  var dispatch = _ref.dispatch;
 	  var visibleTool = _ref.visibleTool;
+	  var selected = _ref.selected;
+	  var nestDirection = _ref.nestDirection;
+	  var nestTargetLocation = _ref.nestTargetLocation;
 	
 	  return React.createElement(
 	    'div',
@@ -23339,20 +23356,27 @@
 	        { id: 'select-text', onClick: function onClick() {
 	            return getSelection(dispatch);
 	          },
-	          style: { opacity: visibleTool === 'select-text' || false ? '1' : '.3' } },
+	          style: { opacity: visibleTool === 'select-text' || false ? '1' : '.2' } },
 	        'Select Text'
 	      )
 	    ),
 	    React.createElement(
 	      'div',
-	      { id: 'slider', className: 'col-xs-12 col-sm-12 col-md-12 col-lg-12',
-	        style: { opacity: visibleTool === 'nest-direction' || false ? '1' : '.3' } },
+	      { className: 'col-xs-12 col-sm-12 col-md-12 col-lg-12',
+	        style: { opacity: visibleTool === 'nest-direction' || false ? '1' : '.2' } },
 	      React.createElement('span', { className: 'fa fa-angle-up fa-2x' }),
 	      React.createElement(
-	        'label',
-	        { className: 'switch' },
-	        React.createElement('input', { type: 'checkbox' }),
-	        React.createElement('span', { className: 'slider round' })
+	        'div',
+	        { id: 'nest-direction', className: 'nest-up' },
+	        React.createElement('button', { onClick: function onClick(e) {
+	            var toggler = e.target.parentNode;
+	            if (toggler.className === 'nest-up') {
+	              toggler.className = 'nest-down';
+	            } else {
+	              toggler.className = 'nest-up';
+	            }
+	            dispatch({ type: 'STORE_NEST_DIRECTION' });
+	          } })
 	      ),
 	      React.createElement('span', { className: 'fa fa-angle-down fa-2x' })
 	    ),
@@ -23362,6 +23386,9 @@
 	      React.createElement(
 	        'button',
 	        { id: 'add-nest',
+	          onClick: function onClick() {
+	            return dispatch(addNest(dispatch, selected, nestDirection, nestTargetLocation));
+	          },
 	          style: { opacity: visibleTool === 'nest-direction' || false ? '1' : '.3' } },
 	        'Add Nest'
 	      )
@@ -23398,7 +23425,10 @@
 	
 	var mapStateToProps = function mapStateToProps(state) {
 	  return {
-	    visibleTool: state.executeToolbarCommand.visibleTool
+	    visibleTool: state.executeToolbarCommand.visibleTool,
+	    selected: state.executeToolbarCommand.selected,
+	    nestDirection: state.executeToolbarCommand.nestDirection,
+	    nestTargetLocation: []
 	  };
 	};
 	
@@ -23413,9 +23443,44 @@
 	var getSelection = function getSelection(dispatch) {
 	  dispatch({ type: 'GET_SELECTED_ELEMENTS' });
 	  dispatch({ type: 'GUIDE_TO_NEST_DIRECTION_BTN' });
+	  dispatch({ type: 'STORE_NEST_DIRECTION' });
 	};
 	
 	module.exports = getSelection;
+
+/***/ },
+/* 203 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	var addNest = function addNest(dispatch, selected, nestDirection, nestTargetLocation) {
+	  //Toogle the available tool buttons:
+	  dispatch({ type: 'SELECT_TEXT' });
+	
+	  //Change text color of elements with a nest:
+	  var textColor = '';
+	  if (nestDirection === 'up') {
+	    textColor = 'blueNest';
+	  }
+	  if (nestDirection === 'down') {
+	    textColor = 'redNest';
+	  }
+	  selected.forEach(function (element) {
+	    return element.classList.add(textColor);
+	  });
+	
+	  return {
+	    type: 'ADD_NEST',
+	    payload: {
+	      selected: selected,
+	      nestDirection: nestDirection,
+	      nestTargetLocation: nestTargetLocation
+	    }
+	  };
+	};
+	
+	module.exports = addNest;
 
 /***/ }
 /******/ ]);

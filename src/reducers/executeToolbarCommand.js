@@ -38,17 +38,30 @@ const executeToolbarCommand = (state = initialState, action) => {
         selection.push(selectedEnd);
       }
 
-      state = Object.assign({}, state,
-        {
-          selected: selection
-        }
-      );
+      state = Object.assign({}, state, {selected: selection});
       break;
 
     case 'GUIDE_TO_NEST_DIRECTION_BTN':
+      state = Object.assign({}, state, {visibleTool: 'nest-direction'});
+      break;
+
+    case 'STORE_NEST_DIRECTION':
+      const nestDirectionBtn = document.getElementById('nest-direction');
+      if (nestDirectionBtn.className === 'nest-up') {
+        state = Object.assign({}, state, {nestDirection: 'up'});
+      } else {
+        state = Object.assign({}, state, {nestDirection: 'down'});
+      }
+      break;
+
+    case 'SELECT_TEXT':
+      state = Object.assign({}, state, {visibleTool: 'select-text'});
+      break;
+
+    case 'ADD_NEST':
       state = Object.assign({}, state,
         {
-          visibleTool: 'nest-direction'
+          
         }
       );
       break;
