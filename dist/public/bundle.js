@@ -23232,6 +23232,7 @@
 	  if (userInputField) {
 	    userInputField.value = '';
 	  }
+	
 	  var theInputField = React.createElement(
 	    'div',
 	    { className: 'row' },
@@ -23256,40 +23257,42 @@
 	    React.createElement(
 	      'div',
 	      null,
-	      notes.map(function (row, key) {
-	        return React.createElement(
-	          'div',
-	          { className: 'row' },
-	          React.createElement(
+	      notes.map(function (row, R_key) {
+	        return row.order.map(function (order, O_key) {
+	          return React.createElement(
 	            'div',
-	            { className: 'col-xs-1 col-sm-1 col-md-1 col-lg-1' },
+	            { className: 'row' },
 	            React.createElement(
-	              'span',
-	              { key: key },
-	              key
-	            )
-	          ),
-	          React.createElement(
-	            'div',
-	            { className: 'col-xs-1 col-sm-1 col-md-1 col-lg-1' },
-	            React.createElement(
-	              'span',
-	              { key: key },
-	              location[1]
-	            )
-	          ),
-	          React.createElement(
-	            'div',
-	            { className: 'col-xs-10 col-sm-10 col-md-10 col-lg-10' },
-	            row.order[0].text.map(function (word, key) {
-	              return React.createElement(
+	              'div',
+	              { className: 'col-xs-1 col-sm-1 col-md-1 col-lg-1' },
+	              React.createElement(
 	                'span',
-	                { key: key },
-	                word + ' '
-	              );
-	            })
-	          )
-	        );
+	                { key: R_key },
+	                R_key
+	              )
+	            ),
+	            React.createElement(
+	              'div',
+	              { className: 'col-xs-1 col-sm-1 col-md-1 col-lg-1' },
+	              React.createElement(
+	                'span',
+	                { key: O_key },
+	                O_key
+	              )
+	            ),
+	            React.createElement(
+	              'div',
+	              { className: 'col-xs-10 col-sm-10 col-md-10 col-lg-10' },
+	              order.text.map(function (word, key) {
+	                return React.createElement(
+	                  'span',
+	                  { key: key },
+	                  word + ' '
+	                );
+	              })
+	            )
+	          );
+	        });
 	      })
 	    ),
 	    theInputField

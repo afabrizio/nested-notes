@@ -14,6 +14,7 @@ const newText  = ({notes, location, dispatch}) => {
   if (userInputField) {
     userInputField.value='';
   }
+
   const theInputField =
     <div className='row'>
       <div className='col-xs-2 col-sm-2 col-md-2 col-lg-2'>
@@ -31,22 +32,26 @@ const newText  = ({notes, location, dispatch}) => {
   return (
     <div>
       <div>
-        {notes.map(
-          (row, key) =>
+      {notes.map(
+        (row, R_key) =>
+          row.order.map(
+            (order, O_key) =>
             <div className='row'>
               <div className='col-xs-1 col-sm-1 col-md-1 col-lg-1'>
-                <span key={key}>{key}</span>
+                <span key={R_key}>{R_key}</span>
               </div>
               <div className='col-xs-1 col-sm-1 col-md-1 col-lg-1'>
-                <span key={key}>{location[1]}</span>
+                <span key={O_key}>{O_key}</span>
               </div>
               <div className='col-xs-10 col-sm-10 col-md-10 col-lg-10'>
-                {row.order[0].text.map(
+                {order.text.map(
                   (word,key) => <span key={key}>{word + ' '}</span>
                 )}
               </div>
             </div>
-        )}
+          )
+        )
+      }
       </div>
       {theInputField}
     </div>
