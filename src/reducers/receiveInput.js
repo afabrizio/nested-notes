@@ -4,17 +4,16 @@ var blankRow =
   [
     {
       text:[],
-      location: [0,0,0]
+      location: [0,0,null]
     }
   ]
 }
 
 var initialState =
 {
-  notes:
-  [
-    blankRow
-  ]
+  notes:[blankRow],
+  placeInputWhere: 'default',
+  currentInputLocation: [1,0,null]
 }
 
 const receiveInput = (state=initialState, action) => {
@@ -22,11 +21,6 @@ const receiveInput = (state=initialState, action) => {
     case 'NEW_ROW_FROM_USER':
       var targetRow = action.targetLocation[0]+1;
       var currentNumRows = state.notes.length;
-
-      // //handles the first case:
-      // if( (currentNumRows===1) && (state.notes[0].order[0].text[1]=== undefined) ) {
-      //   targetRow = action.targetLocation[0];
-      // }
 
       if (targetRow > currentNumRows) {
         state = Object.assign({}, state, {
@@ -48,6 +42,13 @@ const receiveInput = (state=initialState, action) => {
     case 'NEW_SEQUENCE_FROM_USER':
 
       break;
+
+    case 'UPDATE_CURRENT_INPUT_LOCATION':
+      if (action.payload.condition === 'default') {
+        state = Object.assign({}, state, {currentInputLocation: action.payload.location})
+      }
+      break;
+
     default:
   }
   return state;

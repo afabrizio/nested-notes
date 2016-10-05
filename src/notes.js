@@ -4,15 +4,29 @@ const receiveUserInput = require('./actions/receiveUserInput.js');
 
 const mapStateToProps = (state) => {
   return {
-    notes: state.receiveInput.notes
+    notes: state.receiveInput.notes,
+    location: state.receiveInput.currentInputLocation
   }
 }
 
-const newText  = ({notes, dispatch}) => {
+const newText  = ({notes, location, dispatch}) => {
   var userInputField = document.getElementById('user-input');
   if (userInputField) {
     userInputField.value='';
   }
+  const theInputField =
+    <div className='row'>
+      <div className='col-xs-2 col-sm-2 col-md-2 col-lg-2'>
+      </div>
+      <div className='col-xs-10 col-sm-10 col-md-10 col-lg-10'>
+        <input
+          id='user-input'
+          placeholder={'[ '+location[0]+', '+location[1]+', '+location[2]+' ]'}
+          style={{width: '100%'}}
+          onKeyUp={(e) => dispatch(receiveUserInput(e, dispatch))}
+        />
+      </div>
+    </div>
 
   return (
     <div>
@@ -21,26 +35,20 @@ const newText  = ({notes, dispatch}) => {
           (row, key) =>
             <div className='row'>
               <div className='col-xs-1 col-sm-1 col-md-1 col-lg-1'>
-                <span key={key}>{row.order[0].location[0]}</span>
+                <span key={key}>{key}</span>
               </div>
               <div className='col-xs-1 col-sm-1 col-md-1 col-lg-1'>
-                <span key={key}>{row.order[0].location[1]}</span>
+                <span key={key}>{location[1]}</span>
               </div>
               <div className='col-xs-10 col-sm-10 col-md-10 col-lg-10'>
                 {row.order[0].text.map(
-                  (word, key) => <span key={key}>{word + ' '}</span>
+                  (word,key) => <span key={key}>{word + ' '}</span>
                 )}
               </div>
             </div>
         )}
       </div>
-      <div className='row'>
-        <div className='col-xs-2 col-sm-2 col-md-2 col-lg-2'>
-        </div>
-        <div className='col-xs-10 col-sm-10 col-md-10 col-lg-10'>
-          <input id='user-input' style={{width: '100%'}} onKeyUp={(e) => dispatch(receiveUserInput(e))} />
-        </div>
-      </div>
+      {theInputField}
     </div>
   )
 }

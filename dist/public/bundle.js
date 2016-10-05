@@ -23064,12 +23064,14 @@
 	var blankRow = {
 	  order: [{
 	    text: [],
-	    location: [0, 0, 0]
+	    location: [0, 0, null]
 	  }]
 	};
 	
 	var initialState = {
-	  notes: [blankRow]
+	  notes: [blankRow],
+	  placeInputWhere: 'default',
+	  currentInputLocation: [1, 0, null]
 	};
 	
 	var receiveInput = function receiveInput() {
@@ -23080,11 +23082,6 @@
 	    case 'NEW_ROW_FROM_USER':
 	      var targetRow = action.targetLocation[0] + 1;
 	      var currentNumRows = state.notes.length;
-	
-	      // //handles the first case:
-	      // if( (currentNumRows===1) && (state.notes[0].order[0].text[1]=== undefined) ) {
-	      //   targetRow = action.targetLocation[0];
-	      // }
 	
 	      if (targetRow > currentNumRows) {
 	        state = Object.assign({}, state, {
@@ -23106,6 +23103,13 @@
 	    case 'NEW_SEQUENCE_FROM_USER':
 	
 	      break;
+	
+	    case 'UPDATE_CURRENT_INPUT_LOCATION':
+	      if (action.payload.condition === 'default') {
+	        state = Object.assign({}, state, { currentInputLocation: action.payload.location });
+	      }
+	      break;
+	
 	    default:
 	  }
 	  return state;
@@ -23214,18 +23218,37 @@
 	
 	var mapStateToProps = function mapStateToProps(state) {
 	  return {
-	    notes: state.receiveInput.notes
+	    notes: state.receiveInput.notes,
+	    location: state.receiveInput.currentInputLocation
 	  };
 	};
 	
 	var newText = function newText(_ref) {
 	  var notes = _ref.notes;
+	  var location = _ref.location;
 	  var dispatch = _ref.dispatch;
 	
 	  var userInputField = document.getElementById('user-input');
 	  if (userInputField) {
 	    userInputField.value = '';
 	  }
+	  var theInputField = React.createElement(
+	    'div',
+	    { className: 'row' },
+	    React.createElement('div', { className: 'col-xs-2 col-sm-2 col-md-2 col-lg-2' }),
+	    React.createElement(
+	      'div',
+	      { className: 'col-xs-10 col-sm-10 col-md-10 col-lg-10' },
+	      React.createElement('input', {
+	        id: 'user-input',
+	        placeholder: '[ ' + location[0] + ', ' + location[1] + ', ' + location[2] + ' ]',
+	        style: { width: '100%' },
+	        onKeyUp: function onKeyUp(e) {
+	          return dispatch(receiveUserInput(e, dispatch));
+	        }
+	      })
+	    )
+	  );
 	
 	  return React.createElement(
 	    'div',
@@ -23243,7 +23266,7 @@
 	            React.createElement(
 	              'span',
 	              { key: key },
-	              row.order[0].location[0]
+	              key
 	            )
 	          ),
 	          React.createElement(
@@ -23252,7 +23275,7 @@
 	            React.createElement(
 	              'span',
 	              { key: key },
-	              row.order[0].location[1]
+	              location[1]
 	            )
 	          ),
 	          React.createElement(
@@ -23269,18 +23292,7 @@
 	        );
 	      })
 	    ),
-	    React.createElement(
-	      'div',
-	      { className: 'row' },
-	      React.createElement('div', { className: 'col-xs-2 col-sm-2 col-md-2 col-lg-2' }),
-	      React.createElement(
-	        'div',
-	        { className: 'col-xs-10 col-sm-10 col-md-10 col-lg-10' },
-	        React.createElement('input', { id: 'user-input', style: { width: '100%' }, onKeyUp: function onKeyUp(e) {
-	            return dispatch(receiveUserInput(e));
-	          } })
-	      )
-	    )
+	    theInputField
 	  );
 	};
 	
@@ -23292,21 +23304,35 @@
 
 	'use strict';
 	
-	function receiveUserInput(e) {
+	function receiveUserInput(e, dispatch) {
 	  if (e.keyCode === 13) {
 	    var store = __webpack_require__(195);
 	    var state = store.getState();
-	    var row = state.receiveInput.notes.length;
-	    var targetLocation = [row, 0, 0];
+	    var placeInputWhere = state.receiveInput.placeInputWhere;
+	
+	    if (placeInputWhere === 'default') {
+	      dispatch({
+	        type: 'UPDATE_CURRENT_INPUT_LOCATION',
+	        payload: { condition: 'default', location: [state.receiveInput.notes.length + 1, 0, null] }
+	      });
+	    }
+	    if (placeInputWhere === 'not-default') {
+	      dispatch({
+	        type: 'UPDATE_CURRENT_INPUT_LOCATION',
+	        payload: { condition: 'not-default', location: [] }
+	      });
+	    }
+	
+	    var currentInputLocation = state.receiveInput.currentInputLocation;
 	    //Gather and store the line of text the user just input:
 	    var inputString = e.target.value;
 	    var newText = {
 	      order: [{
 	        text: inputString.split(' '),
-	        location: targetLocation
+	        location: currentInputLocation
 	      }]
 	    };
-	    return { type: 'NEW_ROW_FROM_USER', targetLocation: targetLocation, payload: newText };
+	    return { type: 'NEW_ROW_FROM_USER', targetLocation: currentInputLocation, payload: newText };
 	  } else {
 	    return { type: "UNHANDLED" };
 	  }
@@ -23467,7 +23493,8 @@
 	    textColor = 'redNest';
 	  }
 	  selected.forEach(function (element) {
-	    return element.classList.add(textColor);
+	    element.className = 'hasNest';
+	    element.classList.add(textColor);
 	  });
 	
 	  return {

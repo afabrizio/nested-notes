@@ -1,11 +1,29 @@
 
 
-function receiveUserInput(e) {
+function receiveUserInput(e, dispatch) {
   if (e.keyCode === 13) {
     const store = require('./../store.js');
-    let state = store.getState();
-    let row = state.receiveInput.notes.length;
-    var targetLocation = [row,0,0]
+    const state = store.getState();
+    const placeInputWhere = state.receiveInput.placeInputWhere
+
+    if (placeInputWhere === 'default') {
+      dispatch(
+        {
+          type: 'UPDATE_CURRENT_INPUT_LOCATION',
+          payload: {condition: 'default', location: [state.receiveInput.notes.length + 1, 0, null]}
+        }
+      )
+    }
+    if (placeInputWhere === 'not-default') {
+      dispatch(
+        {
+          type: 'UPDATE_CURRENT_INPUT_LOCATION',
+          payload: {condition: 'not-default', location: []}
+        }
+      )
+    }
+
+    let currentInputLocation = state.receiveInput.currentInputLocation
     //Gather and store the line of text the user just input:
     let inputString = e.target.value;
     var newText = {
@@ -13,11 +31,11 @@ function receiveUserInput(e) {
       [
         {
           text: inputString.split(' '),
-          location: targetLocation
+          location: currentInputLocation
         }
       ]
     }
-    return {type: 'NEW_ROW_FROM_USER', targetLocation: targetLocation, payload: newText};
+    return {type: 'NEW_ROW_FROM_USER', targetLocation: currentInputLocation, payload: newText};
   } else {
     return {type: "UNHANDLED"};
   }
