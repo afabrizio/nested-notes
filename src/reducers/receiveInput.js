@@ -12,7 +12,7 @@ var blankRow =
 var initialState =
 {
   notes:[blankRow],
-  placeInputWhere: 'default',
+  placeInputHere: 'default',
   currentInputLocation: [1,0,null]
 }
 
@@ -35,11 +35,16 @@ const receiveInput = (state=initialState, action) => {
       }
       break;
 
-    case 'NEW_ORDER_FROM_USER':
-
+    case 'UPDATE_PLACE_INPUT_HERE':
+      if (action.payload === 'default') {
+        state = Object.assign({}, state, {placeInputHere: 'default'});
+      }
+      if (action.payload === 'not-default') {
+        state = Object.assign({}, state, {placeInputHere: 'not-default'});
+      }
       break;
 
-    case 'NEW_SEQUENCE_FROM_USER':
+    case 'NEW_NEST_FROM_USER':
 
       break;
 
@@ -47,6 +52,10 @@ const receiveInput = (state=initialState, action) => {
       if (action.payload.condition === 'default') {
         state = Object.assign({}, state, {currentInputLocation: action.payload.location})
       }
+      break;
+
+    case 'UPDATE_INPUT_MARKER':
+      state = Object.assign({}, state, {inputMarker: action.payload})
       break;
 
     default:

@@ -4,9 +4,9 @@ function receiveUserInput(e, dispatch) {
   if (e.keyCode === 13) {
     const store = require('./../store.js');
     const state = store.getState();
-    const placeInputWhere = state.receiveInput.placeInputWhere
+    const placeInputHere = state.receiveInput.placeInputHere
 
-    if (placeInputWhere === 'default') {
+    if (placeInputHere === 'default') {
       dispatch(
         {
           type: 'UPDATE_CURRENT_INPUT_LOCATION',
@@ -14,7 +14,7 @@ function receiveUserInput(e, dispatch) {
         }
       )
     }
-    if (placeInputWhere === 'not-default') {
+    if (placeInputHere === 'not-default') {
       dispatch(
         {
           type: 'UPDATE_CURRENT_INPUT_LOCATION',

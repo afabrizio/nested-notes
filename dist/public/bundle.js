@@ -23070,7 +23070,7 @@
 	
 	var initialState = {
 	  notes: [blankRow],
-	  placeInputWhere: 'default',
+	  placeInputHere: 'default',
 	  currentInputLocation: [1, 0, null]
 	};
 	
@@ -23096,11 +23096,16 @@
 	      }
 	      break;
 	
-	    case 'NEW_ORDER_FROM_USER':
-	
+	    case 'UPDATE_PLACE_INPUT_HERE':
+	      if (action.payload === 'default') {
+	        state = Object.assign({}, state, { placeInputHere: 'default' });
+	      }
+	      if (action.payload === 'not-default') {
+	        state = Object.assign({}, state, { placeInputHere: 'not-default' });
+	      }
 	      break;
 	
-	    case 'NEW_SEQUENCE_FROM_USER':
+	    case 'NEW_NEST_FROM_USER':
 	
 	      break;
 	
@@ -23108,6 +23113,10 @@
 	      if (action.payload.condition === 'default') {
 	        state = Object.assign({}, state, { currentInputLocation: action.payload.location });
 	      }
+	      break;
+	
+	    case 'UPDATE_INPUT_MARKER':
+	      state = Object.assign({}, state, { inputMarker: action.payload });
 	      break;
 	
 	    default:
@@ -23189,7 +23198,7 @@
 	        state = Object.assign({}, state, { visibleTool: 'select-text' });
 	        break;
 	
-	      case 'ADD_NEST':
+	      case 'NEST_CONTENTS':
 	        state = Object.assign({}, state, {});
 	        break;
 	
@@ -23311,15 +23320,15 @@
 	  if (e.keyCode === 13) {
 	    var store = __webpack_require__(195);
 	    var state = store.getState();
-	    var placeInputWhere = state.receiveInput.placeInputWhere;
+	    var placeInputHere = state.receiveInput.placeInputHere;
 	
-	    if (placeInputWhere === 'default') {
+	    if (placeInputHere === 'default') {
 	      dispatch({
 	        type: 'UPDATE_CURRENT_INPUT_LOCATION',
 	        payload: { condition: 'default', location: [state.receiveInput.notes.length + 1, 0, null] }
 	      });
 	    }
-	    if (placeInputWhere === 'not-default') {
+	    if (placeInputHere === 'not-default') {
 	      dispatch({
 	        type: 'UPDATE_CURRENT_INPUT_LOCATION',
 	        payload: { condition: 'not-default', location: [] }
@@ -23416,7 +23425,7 @@
 	        'button',
 	        { id: 'add-nest',
 	          onClick: function onClick() {
-	            return dispatch(addNest(dispatch, selected, nestDirection, nestTargetLocation));
+	            return addNest(dispatch, selected, nestDirection, nestTargetLocation);
 	          },
 	          style: { opacity: visibleTool === 'nest-direction' || false ? '1' : '.3' } },
 	        'Add Nest'
@@ -23456,8 +23465,7 @@
 	  return {
 	    visibleTool: state.executeToolbarCommand.visibleTool,
 	    selected: state.executeToolbarCommand.selected,
-	    nestDirection: state.executeToolbarCommand.nestDirection,
-	    nestTargetLocation: []
+	    nestDirection: state.executeToolbarCommand.nestDirection
 	  };
 	};
 	
@@ -23483,11 +23491,26 @@
 
 	'use strict';
 	
-	var addNest = function addNest(dispatch, selected, nestDirection, nestTargetLocation) {
-	  //Toogle the available tool buttons:
+	var addNest = function addNest(dispatch, selected, nestDirection) {
+	  //Derive nestTargetLocation:
+	  var parentDiv = selected[0].parentNode.parentNode.children;
+	  var spawnLocation = [parseInt(parentDiv[0].firstChild.textContent), parseInt(parentDiv[1].firstChild.textContent), 0];
+	  var nestTargetLocation = [];
+	  switch (nestDirection) {
+	    case 'up':
+	      nestTargetLocation = [spawnLocation[0], spawnLocation[1] + 1, spawnLocation[1] + 1];
+	      break;
+	    case 'down':
+	      nestTargetLocation = [spawnLocation[0], spawnLocation[1] - 1, spawnLocation[1] + 1];
+	      break;
+	    default:
+	  }
+	  //should dispatch an action here to update the state object with the current # of sequences associated with this particular row&order!
+	
+	  //Toogles the available tool buttons:
 	  dispatch({ type: 'SELECT_TEXT' });
 	
-	  //Change text color of elements with a nest:
+	  //Changes text color of elements with a nest:
 	  var textColor = '';
 	  if (nestDirection === 'up') {
 	    textColor = 'blueNest';
@@ -23500,14 +23523,10 @@
 	    element.classList.add(textColor);
 	  });
 	
-	  return {
-	    type: 'ADD_NEST',
-	    payload: {
-	      selected: selected,
-	      nestDirection: nestDirection,
-	      nestTargetLocation: nestTargetLocation
-	    }
-	  };
+	  dispatch({ type: 'UPDATE_PLACE_INPUT_HERE', payload: 'not-default' });
+	
+	  //change the marker in the state object that indicates where the input field should be:
+	  dispatch({ type: 'UPDATE_INPUT_MARKER', payload: nestTargetLocation });
 	};
 	
 	module.exports = addNest;

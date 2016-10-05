@@ -58,10 +58,10 @@ const executeToolbarCommand = (state = initialState, action) => {
       state = Object.assign({}, state, {visibleTool: 'select-text'});
       break;
 
-    case 'ADD_NEST':
+    case 'NEST_CONTENTS':
       state = Object.assign({}, state,
         {
-          
+
         }
       );
       break;

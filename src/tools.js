@@ -34,7 +34,7 @@ const Tools = ({dispatch, visibleTool, selected, nestDirection, nestTargetLocati
       </div>
       <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <button id="add-nest"
-        onClick={()=>dispatch(addNest(dispatch, selected, nestDirection, nestTargetLocation))}
+        onClick={()=>addNest(dispatch, selected, nestDirection, nestTargetLocation)}
         style={{opacity: visibleTool === 'nest-direction' || false ? '1' : '.3'}}>
           Add Nest
         </button>
@@ -57,8 +57,7 @@ const mapStateToProps = (state) => {
     {
       visibleTool: state.executeToolbarCommand.visibleTool,
       selected: state.executeToolbarCommand.selected,
-      nestDirection: state.executeToolbarCommand.nestDirection,
-      nestTargetLocation: []
+      nestDirection: state.executeToolbarCommand.nestDirection
     }
   )
 }
