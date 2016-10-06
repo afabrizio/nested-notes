@@ -23148,8 +23148,7 @@
 	'use strict';
 	
 	var initialState = {
-	  selected: [],
-	  visibleTool: 'select-text'
+	  selected: []
 	};
 	
 	var executeToolbarCommand = function executeToolbarCommand() {
@@ -23196,10 +23195,6 @@
 	        state = Object.assign({}, state, { selected: selection });
 	        break;
 	
-	      case 'GUIDE_TO_NEST_DIRECTION_BTN':
-	        state = Object.assign({}, state, { visibleTool: 'nest-direction' });
-	        break;
-	
 	      case 'STORE_NEST_DIRECTION':
 	        var nestDirectionBtn = document.getElementById('nest-direction');
 	        if (nestDirectionBtn.className === 'nest-up') {
@@ -23207,10 +23202,6 @@
 	        } else {
 	          state = Object.assign({}, state, { nestDirection: 'down' });
 	        }
-	        break;
-	
-	      case 'SELECT_TEXT':
-	        state = Object.assign({}, state, { visibleTool: 'select-text' });
 	        break;
 	
 	      default:
@@ -23470,15 +23461,13 @@
 	        'button',
 	        { id: 'select-text', onClick: function onClick() {
 	            return getSelection(dispatch);
-	          },
-	          style: { opacity: visibleTool === 'select-text' || false ? '1' : '.2' } },
+	          } },
 	        'Select Text'
 	      )
 	    ),
 	    React.createElement(
 	      'div',
-	      { className: 'col-xs-12 col-sm-12 col-md-12 col-lg-12',
-	        style: { opacity: visibleTool === 'nest-direction' || false ? '1' : '.2' } },
+	      { id: 'nest-direction-div', className: 'col-xs-12 col-sm-12 col-md-12 col-lg-12 hidden' },
 	      React.createElement('span', { className: 'fa fa-angle-up fa-2x' }),
 	      React.createElement(
 	        'div',
@@ -23500,11 +23489,11 @@
 	      { className: 'col-xs-12 col-sm-12 col-md-12 col-lg-12' },
 	      React.createElement(
 	        'button',
-	        { id: 'add-nest',
+	        { id: 'add-nest', className: 'hidden',
 	          onClick: function onClick() {
 	            return addNest(dispatch, selected, nestDirection, nestTargetLocation);
-	          },
-	          style: { opacity: visibleTool === 'nest-direction' || false ? '1' : '.3' } },
+	          }
+	        },
 	        'Add Nest'
 	      )
 	    ),
@@ -23555,6 +23544,10 @@
 	'use strict';
 	
 	var getSelection = function getSelection(dispatch) {
+	  document.getElementById('select-text').classList.add('hidden');
+	  document.getElementById('nest-direction-div').classList.remove('hidden');
+	  document.getElementById('add-nest').classList.remove('hidden');
+	
 	  dispatch({ type: 'GET_SELECTED_ELEMENTS' });
 	  dispatch({ type: 'GUIDE_TO_NEST_DIRECTION_BTN' });
 	  dispatch({ type: 'STORE_NEST_DIRECTION' });
@@ -23569,16 +23562,20 @@
 	'use strict';
 	
 	var addNest = function addNest(dispatch, selected, nestDirection) {
+	  document.getElementById('select-text').classList.remove('hidden');
+	  document.getElementById('nest-direction-div').classList.add('hidden');
+	  document.getElementById('add-nest').classList.add('hidden');
+	
 	  //Derive nestTargetLocation:
 	  var parentDiv = selected[0].parentNode.parentNode.children;
-	  var spawnLocation = [parseInt(parentDiv[0].firstChild.textContent), parseInt(parentDiv[1].firstChild.textContent), 0];
+	  var spawnLocation = [parseInt(parentDiv[0].firstChild.textContent), parseInt(parentDiv[1].firstChild.textContent), 1];
 	  var nestTargetLocation = [];
 	  switch (nestDirection) {
 	    case 'up':
-	      nestTargetLocation = [spawnLocation[0], spawnLocation[1] + 1, spawnLocation[1] + 1];
+	      nestTargetLocation = [spawnLocation[0], spawnLocation[1] + 1, spawnLocation[1]];
 	      break;
 	    case 'down':
-	      nestTargetLocation = [spawnLocation[0], spawnLocation[1] - 1, spawnLocation[1] + 1];
+	      nestTargetLocation = [spawnLocation[0], spawnLocation[1] - 1, spawnLocation[1]];
 	      break;
 	    default:
 	  }

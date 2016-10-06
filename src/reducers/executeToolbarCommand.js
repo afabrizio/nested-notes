@@ -1,7 +1,6 @@
 const initialState =
   {
-    selected: [],
-    visibleTool: 'select-text'
+    selected: []
   }
 
 const executeToolbarCommand = (state = initialState, action) => {
@@ -41,10 +40,6 @@ const executeToolbarCommand = (state = initialState, action) => {
       state = Object.assign({}, state, {selected: selection});
       break;
 
-    case 'GUIDE_TO_NEST_DIRECTION_BTN':
-      state = Object.assign({}, state, {visibleTool: 'nest-direction'});
-      break;
-
     case 'STORE_NEST_DIRECTION':
       const nestDirectionBtn = document.getElementById('nest-direction');
       if (nestDirectionBtn.className === 'nest-up') {
@@ -52,10 +47,6 @@ const executeToolbarCommand = (state = initialState, action) => {
       } else {
         state = Object.assign({}, state, {nestDirection: 'down'});
       }
-      break;
-
-    case 'SELECT_TEXT':
-      state = Object.assign({}, state, {visibleTool: 'select-text'});
       break;
 
     default:

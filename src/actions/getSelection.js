@@ -1,4 +1,8 @@
 const getSelection = (dispatch) => {
+  document.getElementById('select-text').classList.add('hidden');
+  document.getElementById('nest-direction-div').classList.remove('hidden');
+  document.getElementById('add-nest').classList.remove('hidden');
+  
   dispatch(
     {type: 'GET_SELECTED_ELEMENTS'}
   );

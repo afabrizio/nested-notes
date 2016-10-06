@@ -10,13 +10,11 @@ const Tools = ({dispatch, visibleTool, selected, nestDirection, nestTargetLocati
         <b>Nesting Options</b>
       </div>
       <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-        <button id="select-text" onClick={()=>getSelection(dispatch)}
-        style={{opacity: visibleTool === 'select-text' || false ? '1' : '.2'}}>
+        <button id="select-text" onClick={()=>getSelection(dispatch)}>
           Select Text
         </button>
       </div>
-      <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12"
-      style={{opacity: visibleTool === 'nest-direction' || false ? '1' : '.2'}}>
+      <div id="nest-direction-div" className="col-xs-12 col-sm-12 col-md-12 col-lg-12 hidden">
         <span className="fa fa-angle-up fa-2x"></span>
         <div id="nest-direction" className="nest-up">
           <button onClick={(e)=>{
@@ -33,9 +31,9 @@ const Tools = ({dispatch, visibleTool, selected, nestDirection, nestTargetLocati
         <span className="fa fa-angle-down fa-2x"></span>
       </div>
       <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-        <button id="add-nest"
+        <button id="add-nest" className="hidden"
         onClick={()=>addNest(dispatch, selected, nestDirection, nestTargetLocation)}
-        style={{opacity: visibleTool === 'nest-direction' || false ? '1' : '.3'}}>
+        >
           Add Nest
         </button>
       </div>
