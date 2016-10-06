@@ -47,7 +47,10 @@ const receiveInput = (state=initialState, action) => {
 
     case 'UPDATE_CURRENT_INPUT_LOCATION':
       if (action.payload.condition === 'default') {
-        state = Object.assign({}, state, {currentInputLocation: action.payload.location})
+        state = Object.assign({}, state, {currentInputLocation: action.payload.location});
+      }
+      if (action.payload.condition === 'not-default') {
+        state = Object.assign({}, state, {currentInputLocation: action.payload.location});
       }
       break;
 
@@ -58,8 +61,16 @@ const receiveInput = (state=initialState, action) => {
       case 'NEW_NEST_FROM_USER':
         const targetLocation = action.payload.nestTargetLocation;
         let newNotes = state.notes.concat();
-        newNotes[targetLocation[0]].order.push({location: [targetLocation[0], targetLocation[1], null], text: ["some nested text"]})
+        newNotes[targetLocation[0]].order.push({location: [targetLocation[0], targetLocation[1], null], text: ['*~(#)~*']})
         state = Object.assign({}, state, {notes: newNotes})
+        break;
+
+      case 'INJECT_NEST_TEXT':
+        const theTargetLocation = action.payload.targetLocation;
+        const theNestedText = action.payload.text.split(' ');
+        let notesCopy = state.notes.concat();
+        notesCopy[theTargetLocation[0]].order[theTargetLocation[1]].text = theNestedText;
+        state = Object.assign({}, state, {notes: notesCopy});
         break;
 
     default:

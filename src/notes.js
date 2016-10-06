@@ -19,13 +19,11 @@ const newText  = ({notes, location, inputMarker, placeInputHere, dispatch}) => {
 
   const nestInputField =
     <div className='row'>
-      <div className='col-xs-2 col-sm-2 col-md-2 col-lg-2'>
-      </div>
-      <div className='col-xs-10 col-sm-10 col-md-10 col-lg-10'>
+      <div className='col-xs-12 col-sm-12 col-md-12 col-lg-12'>
         <input
           id='user-input'
           placeholder={'[ '+location[0]+', '+location[1]+', '+location[2]+' ]'}
-          style={{width: '100%'}}
+          style={{width: '100%', color: 'rgb(12,83,148)'}}
           onKeyUp={(e) => dispatch(receiveUserInput(e, dispatch))}
         />
       </div>
@@ -46,14 +44,12 @@ const newText  = ({notes, location, inputMarker, placeInputHere, dispatch}) => {
       </div>
     </div>
   }
-  function notDefaultInputGenerator(R_key, O_key) {
+  function notDefaultInputGenerator(R_key, O_key, key) {
     var temp = R_key+', '+O_key+', 1';
     var inputMarkerString = inputMarker[0]+', '+inputMarker[1]+', '+inputMarker[2];
     if ((temp === inputMarkerString) && (placeInputHere === 'not-default')) {
-      console.log('found nest at: '+R_key+O_key+'1')
-      console.log(nestInputField)
     }
-    return nestInputField;
+    return <div key={key}>{nestInputField}</div>
   }
 
   return (
@@ -62,23 +58,37 @@ const newText  = ({notes, location, inputMarker, placeInputHere, dispatch}) => {
       {notes.map(
         (row, R_key) =>
           row.order.map(
-            (order, O_key) => {notDefaultInputGenerator(R_key, O_key)
-              return (
-                <div className='row'>
-                  <div className='col-xs-1 col-sm-1 col-md-1 col-lg-1'>
-                    <span key={R_key}>{R_key}</span>
-                  </div>
-                  <div className='col-xs-1 col-sm-1 col-md-1 col-lg-1'>
-                    <span key={O_key}>{O_key}</span>
-                  </div>
-                  <div className='col-xs-10 col-sm-10 col-md-10 col-lg-10'>
-                    {order.text.map(
-                      (word,key) => <span key={key}>{word + ' '}</span>
-                    )}
-                  </div>
+            (order, O_key) =>
+              <div className='row'>
+                <div className='col-xs-1 col-sm-1 col-md-1 col-lg-1'>
+                  <span key={R_key}>{R_key}</span>
                 </div>
-              )
-            }
+                <div className='col-xs-1 col-sm-1 col-md-1 col-lg-1'>
+                  <span key={O_key}>{O_key}</span>
+                </div>
+                <div className='col-xs-10 col-sm-10 col-md-10 col-lg-10'>
+                  {order.text.map(
+                    (word,key) => {
+                      if (word === '*~(#)~*'){
+                        return notDefaultInputGenerator(R_key, O_key, key);
+                      }
+                      else {
+                        if (O_key > 0) {
+                          return (
+                            <span key={key} style={{color: 'rgb(12,83,148)'}}>
+                              {word + ' '}
+                            </span>)
+                        } else {
+                          return (
+                            <span key={key}>
+                              {word + ' '}
+                            </span>)
+                        }
+                      }
+                    }
+                  )}
+                </div>
+              </div>
           )
         )
       }

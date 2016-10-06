@@ -23110,6 +23110,9 @@
 	      if (action.payload.condition === 'default') {
 	        state = Object.assign({}, state, { currentInputLocation: action.payload.location });
 	      }
+	      if (action.payload.condition === 'not-default') {
+	        state = Object.assign({}, state, { currentInputLocation: action.payload.location });
+	      }
 	      break;
 	
 	    case 'UPDATE_INPUT_MARKER':
@@ -23119,8 +23122,16 @@
 	    case 'NEW_NEST_FROM_USER':
 	      var targetLocation = action.payload.nestTargetLocation;
 	      var newNotes = state.notes.concat();
-	      newNotes[targetLocation[0]].order.push({ location: [targetLocation[0], targetLocation[1], null], text: ["some nested text"] });
+	      newNotes[targetLocation[0]].order.push({ location: [targetLocation[0], targetLocation[1], null], text: ['*~(#)~*'] });
 	      state = Object.assign({}, state, { notes: newNotes });
+	      break;
+	
+	    case 'INJECT_NEST_TEXT':
+	      var theTargetLocation = action.payload.targetLocation;
+	      var theNestedText = action.payload.text.split(' ');
+	      var notesCopy = state.notes.concat();
+	      notesCopy[theTargetLocation[0]].order[theTargetLocation[1]].text = theNestedText;
+	      state = Object.assign({}, state, { notes: notesCopy });
 	      break;
 	
 	    default:
@@ -23249,14 +23260,13 @@
 	  var nestInputField = React.createElement(
 	    'div',
 	    { className: 'row' },
-	    React.createElement('div', { className: 'col-xs-2 col-sm-2 col-md-2 col-lg-2' }),
 	    React.createElement(
 	      'div',
-	      { className: 'col-xs-10 col-sm-10 col-md-10 col-lg-10' },
+	      { className: 'col-xs-12 col-sm-12 col-md-12 col-lg-12' },
 	      React.createElement('input', {
 	        id: 'user-input',
 	        placeholder: '[ ' + location[0] + ', ' + location[1] + ', ' + location[2] + ' ]',
-	        style: { width: '100%' },
+	        style: { width: '100%', color: 'rgb(12,83,148)' },
 	        onKeyUp: function onKeyUp(e) {
 	          return dispatch(receiveUserInput(e, dispatch));
 	        }
@@ -23283,14 +23293,15 @@
 	      )
 	    );
 	  }
-	  function notDefaultInputGenerator(R_key, O_key) {
+	  function notDefaultInputGenerator(R_key, O_key, key) {
 	    var temp = R_key + ', ' + O_key + ', 1';
 	    var inputMarkerString = inputMarker[0] + ', ' + inputMarker[1] + ', ' + inputMarker[2];
-	    if (temp === inputMarkerString && placeInputHere === 'not-default') {
-	      console.log('found nest at: ' + R_key + O_key + '1');
-	      console.log(nestInputField);
-	    }
-	    return nestInputField;
+	    if (temp === inputMarkerString && placeInputHere === 'not-default') {}
+	    return React.createElement(
+	      'div',
+	      { key: key },
+	      nestInputField
+	    );
 	  }
 	
 	  return React.createElement(
@@ -23301,7 +23312,6 @@
 	      null,
 	      notes.map(function (row, R_key) {
 	        return row.order.map(function (order, O_key) {
-	          notDefaultInputGenerator(R_key, O_key);
 	          return React.createElement(
 	            'div',
 	            { className: 'row' },
@@ -23327,11 +23337,23 @@
 	              'div',
 	              { className: 'col-xs-10 col-sm-10 col-md-10 col-lg-10' },
 	              order.text.map(function (word, key) {
-	                return React.createElement(
-	                  'span',
-	                  { key: key },
-	                  word + ' '
-	                );
+	                if (word === '*~(#)~*') {
+	                  return notDefaultInputGenerator(R_key, O_key, key);
+	                } else {
+	                  if (O_key > 0) {
+	                    return React.createElement(
+	                      'span',
+	                      { key: key, style: { color: 'rgb(12,83,148)' } },
+	                      word + ' '
+	                    );
+	                  } else {
+	                    return React.createElement(
+	                      'span',
+	                      { key: key },
+	                      word + ' '
+	                    );
+	                  }
+	                }
 	              })
 	            )
 	          );
@@ -23356,41 +23378,52 @@
 	    var state = store.getState();
 	    var placeInputHere = state.receiveInput.placeInputHere;
 	
-	    if (placeInputHere === 'default') {
-	      dispatch({
-	        type: 'UPDATE_CURRENT_INPUT_LOCATION',
-	        payload: { condition: 'default', location: [state.receiveInput.notes.length + 1, 0, null] }
-	      });
+	    switch (placeInputHere) {
+	      case 'default':
+	        dispatch({
+	          type: 'UPDATE_CURRENT_INPUT_LOCATION',
+	          payload: {
+	            condition: 'default',
+	            location: [state.receiveInput.notes.length + 1, 0, null]
+	          }
+	        });
+	        var currentInputLocation = state.receiveInput.currentInputLocation;
+	        var newText = {
+	          order: [{ text: e.target.value.split(' '), location: currentInputLocation }]
+	        };
+	        dispatch({ type: 'UPDATE_PLACE_INPUT_HERE', payload: 'default' });
+	        var inputMarker = currentInputLocation.concat();
+	        inputMarker.splice(0, 1, currentInputLocation[0] + 1);
+	        dispatch({ type: 'UPDATE_INPUT_MARKER', payload: inputMarker });
+	        return {
+	          type: 'NEW_ROW_FROM_USER',
+	          targetLocation: currentInputLocation,
+	          payload: newText
+	        };
+	        break;
+	
+	      case 'not-default':
+	        dispatch({
+	          type: 'INJECT_NEST_TEXT',
+	          payload: {
+	            targetLocation: state.receiveInput.currentInputLocation,
+	            text: e.target.value
+	          }
+	        });
+	        dispatch({ type: 'UPDATE_PLACE_INPUT_HERE', payload: 'default' });
+	        dispatch({
+	          type: 'UPDATE_CURRENT_INPUT_LOCATION',
+	          payload: {
+	            condition: 'default',
+	            location: [state.receiveInput.notes.length, 0, null]
+	          }
+	        });
+	        break;
+	      default:
+	
 	    }
-	    if (placeInputHere === 'not-default') {
-	      dispatch({
-	        type: 'UPDATE_CURRENT_INPUT_LOCATION',
-	        payload: { condition: 'not-default', location: [] }
-	      });
-	    }
-	
-	    var currentInputLocation = state.receiveInput.currentInputLocation;
-	    //Gather and store the line of text the user just input:
-	    var inputString = e.target.value;
-	    var newText = {
-	      order: [{
-	        text: inputString.split(' '),
-	        location: currentInputLocation
-	      }]
-	    };
-	
-	    dispatch({ type: 'UPDATE_PLACE_INPUT_HERE', payload: 'default' });
-	    var inputMarker = currentInputLocation.concat();
-	    inputMarker.splice(0, 1, currentInputLocation[0] + 1);
-	    dispatch({ type: 'UPDATE_INPUT_MARKER', payload: inputMarker });
-	
-	    return {
-	      type: 'NEW_ROW_FROM_USER',
-	      targetLocation: currentInputLocation,
-	      payload: newText
-	    };
 	  } else {
-	    return { type: "UNHANDLED" };
+	    return { type: 'UNHANDLED' };
 	  }
 	}
 	
@@ -23577,6 +23610,14 @@
 	    type: 'NEW_NEST_FROM_USER',
 	    payload: {
 	      nestTargetLocation: nestTargetLocation
+	    }
+	  });
+	
+	  dispatch({
+	    type: 'UPDATE_CURRENT_INPUT_LOCATION',
+	    payload: {
+	      condition: 'not-default',
+	      location: nestTargetLocation
 	    }
 	  });
 	};

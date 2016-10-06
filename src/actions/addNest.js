@@ -50,6 +50,20 @@ const addNest = (dispatch, selected, nestDirection) => {
       }
     }
   )
+
+  dispatch(
+    {
+      type: 'UPDATE_CURRENT_INPUT_LOCATION',
+      payload:
+      {
+        condition: 'not-default',
+        location: nestTargetLocation
+      }
+    }
+  )
+
 }
+
+
 
 module.exports = addNest;
