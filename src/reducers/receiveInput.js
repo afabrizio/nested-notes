@@ -60,17 +60,31 @@ const receiveInput = (state=initialState, action) => {
 
       case 'NEW_NEST_FROM_USER':
         const targetLocation = action.payload.nestTargetLocation;
-        let newNotes = state.notes.concat();
-        newNotes[targetLocation[0]].order.push({location: [targetLocation[0], targetLocation[1], null], text: ['*~(#)~*']})
-        state = Object.assign({}, state, {notes: newNotes})
+        let notesCopy1 = state.notes.concat();
+        let orders = notesCopy1[targetLocation[0]].order;
+        for (let i=0; i<orders.length; i++) {
+          if (orders[i].location[1] - targetLocation[1] === -1) {
+            orders.splice(i-1, 0,
+              {location: [targetLocation[0], targetLocation[1], null], text: ['*~(#)~*']}
+            )
+            break;
+          }
+          if (orders[i].location[1] - targetLocation[1] === 1) {
+            orders.splice(i+1, 0,
+              {location: [targetLocation[0], targetLocation[1], null], text: ['*~(#)~*']}
+            )
+            break;
+          }
+        }
+        state = Object.assign({}, state, {notes: notesCopy1})
         break;
 
       case 'INJECT_NEST_TEXT':
         const theTargetLocation = action.payload.targetLocation;
         const theNestedText = action.payload.text.split(' ');
-        let notesCopy = state.notes.concat();
-        notesCopy[theTargetLocation[0]].order[theTargetLocation[1]].text = theNestedText;
-        state = Object.assign({}, state, {notes: notesCopy});
+        let notesCopy2 = state.notes.concat();
+        notesCopy2[theTargetLocation[0]].order[theTargetLocation[1]].text = theNestedText;
+        state = Object.assign({}, state, {notes: notesCopy2});
         break;
 
     default:

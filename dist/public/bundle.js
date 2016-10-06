@@ -23121,17 +23121,27 @@
 	
 	    case 'NEW_NEST_FROM_USER':
 	      var targetLocation = action.payload.nestTargetLocation;
-	      var newNotes = state.notes.concat();
-	      newNotes[targetLocation[0]].order.push({ location: [targetLocation[0], targetLocation[1], null], text: ['*~(#)~*'] });
-	      state = Object.assign({}, state, { notes: newNotes });
+	      var notesCopy1 = state.notes.concat();
+	      var orders = notesCopy1[targetLocation[0]].order;
+	      for (var i = 0; i < orders.length; i++) {
+	        if (orders[i].location[1] - targetLocation[1] === -1) {
+	          orders.splice(i - 1, 0, { location: [targetLocation[0], targetLocation[1], null], text: ['*~(#)~*'] });
+	          break;
+	        }
+	        if (orders[i].location[1] - targetLocation[1] === 1) {
+	          orders.splice(i + 1, 0, { location: [targetLocation[0], targetLocation[1], null], text: ['*~(#)~*'] });
+	          break;
+	        }
+	      }
+	      state = Object.assign({}, state, { notes: notesCopy1 });
 	      break;
 	
 	    case 'INJECT_NEST_TEXT':
 	      var theTargetLocation = action.payload.targetLocation;
 	      var theNestedText = action.payload.text.split(' ');
-	      var notesCopy = state.notes.concat();
-	      notesCopy[theTargetLocation[0]].order[theTargetLocation[1]].text = theNestedText;
-	      state = Object.assign({}, state, { notes: notesCopy });
+	      var notesCopy2 = state.notes.concat();
+	      notesCopy2[theTargetLocation[0]].order[theTargetLocation[1]].text = theNestedText;
+	      state = Object.assign({}, state, { notes: notesCopy2 });
 	      break;
 	
 	    default:
@@ -23257,7 +23267,7 @@
 	      React.createElement('input', {
 	        id: 'user-input',
 	        placeholder: '[ ' + location[0] + ', ' + location[1] + ', ' + location[2] + ' ]',
-	        style: { width: '100%', color: 'rgb(12,83,148)' },
+	        style: { width: '100%', fontStyle: 'Italic' },
 	        onKeyUp: function onKeyUp(e) {
 	          return dispatch(receiveUserInput(e, dispatch));
 	        }
@@ -23321,7 +23331,7 @@
 	              React.createElement(
 	                'span',
 	                { key: O_key },
-	                O_key
+	                order.location[1]
 	              )
 	            ),
 	            React.createElement(
@@ -23331,10 +23341,16 @@
 	                if (word === '*~(#)~*') {
 	                  return notDefaultInputGenerator(R_key, O_key, key);
 	                } else {
-	                  if (O_key > 0) {
+	                  if (order.location[1] > 0) {
 	                    return React.createElement(
 	                      'span',
 	                      { key: key, style: { color: 'rgb(12,83,148)' } },
+	                      word + ' '
+	                    );
+	                  } else if (order.location[1] < 0) {
+	                    return React.createElement(
+	                      'span',
+	                      { key: key, style: { color: 'rgb(148,0,0)' } },
 	                      word + ' '
 	                    );
 	                  } else {
@@ -23394,10 +23410,20 @@
 	        break;
 	
 	      case 'not-default':
+	        //figures out where to inject the text, since orders can be negative values but array indicies cannot be negative.
+	        var targetLocation = state.receiveInput.currentInputLocation;
+	        var orders = state.receiveInput.notes[targetLocation[0]].order;
+	        var targetOrder = null;
+	        orders.forEach(function (order, key) {
+	          if (order.location[1] === targetLocation[1]) {
+	            targetOrder = key;
+	          }
+	        });
+	        var injectLocation = [targetLocation[0], targetOrder, targetLocation[2]];
 	        dispatch({
 	          type: 'INJECT_NEST_TEXT',
 	          payload: {
-	            targetLocation: state.receiveInput.currentInputLocation,
+	            targetLocation: injectLocation,
 	            text: e.target.value
 	          }
 	        });
@@ -23437,7 +23463,6 @@
 	
 	var Tools = function Tools(_ref) {
 	  var dispatch = _ref.dispatch;
-	  var visibleTool = _ref.visibleTool;
 	  var selected = _ref.selected;
 	  var nestDirection = _ref.nestDirection;
 	  var nestTargetLocation = _ref.nestTargetLocation;
@@ -23529,7 +23554,6 @@
 	
 	var mapStateToProps = function mapStateToProps(state) {
 	  return {
-	    visibleTool: state.executeToolbarCommand.visibleTool,
 	    selected: state.executeToolbarCommand.selected,
 	    nestDirection: state.executeToolbarCommand.nestDirection
 	  };
@@ -23593,7 +23617,7 @@
 	    textColor = 'redNest';
 	  }
 	  selected.forEach(function (element) {
-	    element.className = 'hasNest';
+	    element.classList.add('hasNest');
 	    element.classList.add(textColor);
 	  });
 	

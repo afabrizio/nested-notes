@@ -35,7 +35,7 @@ const addNest = (dispatch, selected, nestDirection) => {
   }
   selected.forEach(
     (element) => {
-      element.className = 'hasNest';
+      element.classList.add('hasNest');
       element.classList.add(textColor);
     }
   );

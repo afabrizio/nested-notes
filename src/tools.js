@@ -3,7 +3,7 @@ const {connect} = require('react-redux');
 const getSelection = require('./actions/getSelection.js');
 const addNest = require('./actions/addNest.js');
 
-const Tools = ({dispatch, visibleTool, selected, nestDirection, nestTargetLocation}) => {
+const Tools = ({dispatch, selected, nestDirection, nestTargetLocation}) => {
   return (
     <div>
       <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="nesting-options">
@@ -53,7 +53,6 @@ const Tools = ({dispatch, visibleTool, selected, nestDirection, nestTargetLocati
 const mapStateToProps = (state) => {
   return (
     {
-      visibleTool: state.executeToolbarCommand.visibleTool,
       selected: state.executeToolbarCommand.selected,
       nestDirection: state.executeToolbarCommand.nestDirection
     }

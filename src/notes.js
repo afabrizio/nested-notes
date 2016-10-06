@@ -23,7 +23,7 @@ const newText  = ({notes, location, inputMarker, placeInputHere, dispatch}) => {
         <input
           id='user-input'
           placeholder={'[ '+location[0]+', '+location[1]+', '+location[2]+' ]'}
-          style={{width: '100%', color: 'rgb(12,83,148)'}}
+          style={{width: '100%', fontStyle: 'Italic'}}
           onKeyUp={(e) => dispatch(receiveUserInput(e, dispatch))}
         />
       </div>
@@ -64,21 +64,27 @@ const newText  = ({notes, location, inputMarker, placeInputHere, dispatch}) => {
                   <span key={R_key}>{R_key}</span>
                 </div>
                 <div className='col-xs-1 col-sm-1 col-md-1 col-lg-1'>
-                  <span key={O_key}>{O_key}</span>
+                  <span key={O_key}>{order.location[1]}</span>
                 </div>
                 <div className='col-xs-10 col-sm-10 col-md-10 col-lg-10'>
                   {order.text.map(
                     (word,key) => {
-                      if (word === '*~(#)~*'){
+                      if(word === '*~(#)~*'){
                         return notDefaultInputGenerator(R_key, O_key, key);
                       }
                       else {
-                        if (O_key > 0) {
+                        if(order.location[1] > 0) {
                           return (
                             <span key={key} style={{color: 'rgb(12,83,148)'}}>
                               {word + ' '}
                             </span>)
-                        } else {
+                        } else if(order.location[1] < 0) {
+                          return (
+                            <span key={key} style={{color: 'rgb(148,0,0)'}}>
+                              {word + ' '}
+                            </span>)
+                        }
+                        else {
                           return (
                             <span key={key}>
                               {word + ' '}

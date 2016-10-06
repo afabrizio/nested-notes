@@ -31,10 +31,24 @@ function receiveUserInput(e, dispatch) {
         break;
 
       case 'not-default':
+        //figures out where to inject the text, since orders can be negative values but array indicies cannot be negative.
+        var targetLocation = state.receiveInput.currentInputLocation;
+        var orders = state.receiveInput.notes[targetLocation[0]].order;
+        var targetOrder = null;
+        orders.forEach((order, key) => {
+          if (order.location[1] === targetLocation[1]) {
+            targetOrder = key;
+          }
+        })
+        var injectLocation = [
+          targetLocation[0],
+          targetOrder,
+          targetLocation[2]
+        ];
         dispatch({
             type: 'INJECT_NEST_TEXT',
             payload: {
-              targetLocation: state.receiveInput.currentInputLocation,
+              targetLocation: injectLocation,
               text: e.target.value
             }
         })
