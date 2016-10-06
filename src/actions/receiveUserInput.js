@@ -35,7 +35,19 @@ function receiveUserInput(e, dispatch) {
         }
       ]
     }
-    return {type: 'NEW_ROW_FROM_USER', targetLocation: currentInputLocation, payload: newText};
+
+    dispatch({type: 'UPDATE_PLACE_INPUT_HERE', payload: 'default'});
+    let inputMarker = currentInputLocation.concat();
+    inputMarker.splice(0,1,currentInputLocation[0]+1);
+    dispatch({type: 'UPDATE_INPUT_MARKER', payload: inputMarker});
+
+    return (
+      {
+        type: 'NEW_ROW_FROM_USER',
+        targetLocation: currentInputLocation,
+        payload: newText
+      }
+    )
   } else {
     return {type: "UNHANDLED"};
   }

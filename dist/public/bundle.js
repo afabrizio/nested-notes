@@ -23228,13 +23228,17 @@
 	var mapStateToProps = function mapStateToProps(state) {
 	  return {
 	    notes: state.receiveInput.notes,
-	    location: state.receiveInput.currentInputLocation
+	    location: state.receiveInput.currentInputLocation,
+	    inputMarker: state.receiveInput.inputMarker,
+	    placeInputHere: state.receiveInput.placeInputHere
 	  };
 	};
 	
 	var newText = function newText(_ref) {
 	  var notes = _ref.notes;
 	  var location = _ref.location;
+	  var inputMarker = _ref.inputMarker;
+	  var placeInputHere = _ref.placeInputHere;
 	  var dispatch = _ref.dispatch;
 	
 	  var userInputField = document.getElementById('user-input');
@@ -23242,7 +23246,7 @@
 	    userInputField.value = '';
 	  }
 	
-	  var theInputField = React.createElement(
+	  var nestInputField = React.createElement(
 	    'div',
 	    { className: 'row' },
 	    React.createElement('div', { className: 'col-xs-2 col-sm-2 col-md-2 col-lg-2' }),
@@ -23260,6 +23264,26 @@
 	    )
 	  );
 	
+	  if (placeInputHere === 'default') {
+	    var defaultInputField = React.createElement(
+	      'div',
+	      { className: 'row' },
+	      React.createElement('div', { className: 'col-xs-2 col-sm-2 col-md-2 col-lg-2' }),
+	      React.createElement(
+	        'div',
+	        { className: 'col-xs-10 col-sm-10 col-md-10 col-lg-10' },
+	        React.createElement('input', {
+	          id: 'user-input',
+	          placeholder: '[ ' + location[0] + ', ' + location[1] + ', ' + location[2] + ' ]',
+	          style: { width: '100%' },
+	          onKeyUp: function onKeyUp(e) {
+	            return dispatch(receiveUserInput(e, dispatch));
+	          }
+	        })
+	      )
+	    );
+	  }
+	
 	  return React.createElement(
 	    'div',
 	    null,
@@ -23268,6 +23292,10 @@
 	      null,
 	      notes.map(function (row, R_key) {
 	        return row.order.map(function (order, O_key) {
+	          var temp = [R_key, O_key, null];
+	          if (temp === inputMarker && placeInputHere === "not-default") {
+	            nestInputField;
+	          }
 	          return React.createElement(
 	            'div',
 	            { className: 'row' },
@@ -23304,7 +23332,7 @@
 	        });
 	      })
 	    ),
-	    theInputField
+	    defaultInputField
 	  );
 	};
 	
@@ -23344,7 +23372,17 @@
 	        location: currentInputLocation
 	      }]
 	    };
-	    return { type: 'NEW_ROW_FROM_USER', targetLocation: currentInputLocation, payload: newText };
+	
+	    dispatch({ type: 'UPDATE_PLACE_INPUT_HERE', payload: 'default' });
+	    var inputMarker = currentInputLocation.concat();
+	    inputMarker.splice(0, 1, currentInputLocation[0] + 1);
+	    dispatch({ type: 'UPDATE_INPUT_MARKER', payload: inputMarker });
+	
+	    return {
+	      type: 'NEW_ROW_FROM_USER',
+	      targetLocation: currentInputLocation,
+	      payload: newText
+	    };
 	  } else {
 	    return { type: "UNHANDLED" };
 	  }
