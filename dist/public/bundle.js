@@ -23071,7 +23071,8 @@
 	var initialState = {
 	  notes: [blankRow],
 	  placeInputHere: 'default',
-	  currentInputLocation: [1, 0, null]
+	  currentInputLocation: [1, 0, null],
+	  inputMarker: [null, null, null]
 	};
 	
 	var receiveInput = function receiveInput() {
@@ -23105,10 +23106,6 @@
 	      }
 	      break;
 	
-	    case 'NEW_NEST_FROM_USER':
-	
-	      break;
-	
 	    case 'UPDATE_CURRENT_INPUT_LOCATION':
 	      if (action.payload.condition === 'default') {
 	        state = Object.assign({}, state, { currentInputLocation: action.payload.location });
@@ -23117,6 +23114,13 @@
 	
 	    case 'UPDATE_INPUT_MARKER':
 	      state = Object.assign({}, state, { inputMarker: action.payload });
+	      break;
+	
+	    case 'NEW_NEST_FROM_USER':
+	      var targetLocation = action.payload.nestTargetLocation;
+	      var newNotes = state.notes.concat();
+	      newNotes[targetLocation[0]].order.push({ location: [targetLocation[0], targetLocation[1], null], text: ["some nested text"] });
+	      state = Object.assign({}, state, { notes: newNotes });
 	      break;
 	
 	    default:
@@ -23196,10 +23200,6 @@
 	
 	      case 'SELECT_TEXT':
 	        state = Object.assign({}, state, { visibleTool: 'select-text' });
-	        break;
-	
-	      case 'NEST_CONTENTS':
-	        state = Object.assign({}, state, {});
 	        break;
 	
 	      default:
@@ -23283,6 +23283,15 @@
 	      )
 	    );
 	  }
+	  function notDefaultInputGenerator(R_key, O_key) {
+	    var temp = R_key + ', ' + O_key + ', 1';
+	    var inputMarkerString = inputMarker[0] + ', ' + inputMarker[1] + ', ' + inputMarker[2];
+	    if (temp === inputMarkerString && placeInputHere === 'not-default') {
+	      console.log('found nest at: ' + R_key + O_key + '1');
+	      console.log(nestInputField);
+	    }
+	    return nestInputField;
+	  }
 	
 	  return React.createElement(
 	    'div',
@@ -23292,10 +23301,7 @@
 	      null,
 	      notes.map(function (row, R_key) {
 	        return row.order.map(function (order, O_key) {
-	          var temp = [R_key, O_key, null];
-	          if (temp === inputMarker && placeInputHere === "not-default") {
-	            nestInputField;
-	          }
+	          notDefaultInputGenerator(R_key, O_key);
 	          return React.createElement(
 	            'div',
 	            { className: 'row' },
@@ -23565,6 +23571,14 @@
 	
 	  //change the marker in the state object that indicates where the input field should be:
 	  dispatch({ type: 'UPDATE_INPUT_MARKER', payload: nestTargetLocation });
+	
+	  //add nest to the notes property of the state object:
+	  dispatch({
+	    type: 'NEW_NEST_FROM_USER',
+	    payload: {
+	      nestTargetLocation: nestTargetLocation
+	    }
+	  });
 	};
 	
 	module.exports = addNest;

@@ -13,7 +13,8 @@ var initialState =
 {
   notes:[blankRow],
   placeInputHere: 'default',
-  currentInputLocation: [1,0,null]
+  currentInputLocation: [1,0,null],
+  inputMarker: [null,null,null]
 }
 
 const receiveInput = (state=initialState, action) => {
@@ -44,10 +45,6 @@ const receiveInput = (state=initialState, action) => {
       }
       break;
 
-    case 'NEW_NEST_FROM_USER':
-
-      break;
-
     case 'UPDATE_CURRENT_INPUT_LOCATION':
       if (action.payload.condition === 'default') {
         state = Object.assign({}, state, {currentInputLocation: action.payload.location})
@@ -57,6 +54,13 @@ const receiveInput = (state=initialState, action) => {
     case 'UPDATE_INPUT_MARKER':
       state = Object.assign({}, state, {inputMarker: action.payload})
       break;
+
+      case 'NEW_NEST_FROM_USER':
+        const targetLocation = action.payload.nestTargetLocation;
+        let newNotes = state.notes.concat();
+        newNotes[targetLocation[0]].order.push({location: [targetLocation[0], targetLocation[1], null], text: ["some nested text"]})
+        state = Object.assign({}, state, {notes: newNotes})
+        break;
 
     default:
   }

@@ -46,6 +46,15 @@ const newText  = ({notes, location, inputMarker, placeInputHere, dispatch}) => {
       </div>
     </div>
   }
+  function notDefaultInputGenerator(R_key, O_key) {
+    var temp = R_key+', '+O_key+', 1';
+    var inputMarkerString = inputMarker[0]+', '+inputMarker[1]+', '+inputMarker[2];
+    if ((temp === inputMarkerString) && (placeInputHere === 'not-default')) {
+      console.log('found nest at: '+R_key+O_key+'1')
+      console.log(nestInputField)
+    }
+    return nestInputField;
+  }
 
   return (
     <div>
@@ -53,11 +62,7 @@ const newText  = ({notes, location, inputMarker, placeInputHere, dispatch}) => {
       {notes.map(
         (row, R_key) =>
           row.order.map(
-            (order, O_key) =>
-            { var temp = [R_key, O_key, null];
-              if (temp === inputMarker && placeInputHere === "not-default") {
-                nestInputField
-              }
+            (order, O_key) => {notDefaultInputGenerator(R_key, O_key)
               return (
                 <div className='row'>
                   <div className='col-xs-1 col-sm-1 col-md-1 col-lg-1'>

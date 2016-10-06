@@ -40,6 +40,16 @@ const addNest = (dispatch, selected, nestDirection) => {
 
   //change the marker in the state object that indicates where the input field should be:
   dispatch({type: 'UPDATE_INPUT_MARKER', payload: nestTargetLocation});
+
+  //add nest to the notes property of the state object:
+  dispatch(
+    {
+      type: 'NEW_NEST_FROM_USER',
+      payload: {
+        nestTargetLocation: nestTargetLocation
+      }
+    }
+  )
 }
 
 module.exports = addNest;
