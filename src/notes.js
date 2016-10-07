@@ -7,11 +7,12 @@ const mapStateToProps = (state) => {
     notes: state.receiveInput.notes,
     location: state.receiveInput.currentInputLocation,
     inputMarker: state.receiveInput.inputMarker,
-    placeInputHere: state.receiveInput.placeInputHere
+    placeInputHere: state.receiveInput.placeInputHere,
+    nestSpawns: state.executeToolbarCommand.nestSpawns
   }
 }
 
-const newText  = ({notes, location, inputMarker, placeInputHere, dispatch}) => {
+const newText  = ({notes, location, inputMarker, placeInputHere, nestSpawns, dispatch}) => {
   var userInputField = document.getElementById('user-input');
   if (userInputField) {
     userInputField.value='';
@@ -28,9 +29,9 @@ const newText  = ({notes, location, inputMarker, placeInputHere, dispatch}) => {
         />
       </div>
     </div>
-
+  let defaultInputField = <div></div>  
   if(placeInputHere === 'default') {
-    var defaultInputField =
+    defaultInputField =
     <div className='row'>
       <div className='col-xs-2 col-sm-2 col-md-2 col-lg-2'>
       </div>
@@ -52,52 +53,75 @@ const newText  = ({notes, location, inputMarker, placeInputHere, dispatch}) => {
     return <div key={key}>{nestInputField}</div>
   }
 
+  function styleNestSpawns(nestSpawns, R_key, O_key, W_key) {
+    var className = '';
+    nestSpawns.forEach((spawn) => {
+      if(spawn.row === R_key && spawn.order === O_key && spawn.word === W_key) {
+        switch (spawn.direction) {
+          case 'up':
+            className = 'hasNest blueNest';
+            break;
+          case 'down':
+            className = 'hasNest redNest';
+            break;
+          default:
+        }
+      }
+    })
+    return className;
+  }
+  var className = null;
   return (
     <div>
       <div>
       {notes.map(
         (row, R_key) =>
           row.order.map(
-            (order, O_key) =>
-              <div className='row'>
-                <div className='col-xs-1 col-sm-1 col-md-1 col-lg-1'>
-                  <span key={R_key}>{R_key}</span>
-                </div>
-                <div className='col-xs-1 col-sm-1 col-md-1 col-lg-1'>
-                  <span key={O_key}>{order.location[1]}</span>
-                </div>
-                <div className='col-xs-10 col-sm-10 col-md-10 col-lg-10'>
-                  {order.text.map(
-                    (word,key) => {
-                      if(word === '*~(#)~*'){
-                        return notDefaultInputGenerator(R_key, O_key, key);
-                      }
-                      else {
-                        if(order.location[1] > 0) {
-                          return (
-                            <span key={key} style={{color: 'rgb(12,83,148)'}}>
-                              {word + ' '}
-                            </span>)
-                        } else if(order.location[1] < 0) {
-                          return (
-                            <span key={key} style={{color: 'rgb(148,0,0)'}}>
-                              {word + ' '}
-                            </span>)
+            (order, O_key) => {
+              return(
+                <div className='row'>
+                  <div className='col-xs-1 col-sm-1 col-md-1 col-lg-1'>
+                    <span key={R_key}>{R_key}</span>
+                  </div>
+                  <div className='col-xs-1 col-sm-1 col-md-1 col-lg-1'>
+                    <span key={O_key}>{order.location[1]}</span>
+                  </div>
+                  <div className='col-xs-10 col-sm-10 col-md-10 col-lg-10'>
+                    {order.text.map(
+                      (word,W_key) => {
+                        if(word === '*~(#)~*'){
+                          return notDefaultInputGenerator(R_key, O_key, W_key);
                         }
                         else {
-                          return (
-                            <span key={key}>
-                              {word + ' '}
-                            </span>)
+                          if(order.location[1] > 0) {
+                            className = styleNestSpawns(nestSpawns, R_key, O_key, W_key);
+                            return (
+                              <span key={W_key} style={{color: 'rgb(12,83,148)'}}>
+                                {word + ' '}
+                              </span>)
+                          } else if(order.location[1] < 0) {
+                            className = styleNestSpawns(nestSpawns, R_key, O_key, W_key);
+                            return (
+                              <span key={W_key} style={{color: 'rgb(148,0,0)'}}>
+                                {word + ' '}
+                              </span>)
+                          }
+                          else {
+                            className = styleNestSpawns(nestSpawns, R_key, O_key, W_key);
+                            return (
+                              <span key={W_key} className={className}>
+                                {word + ' '}
+                              </span>)
+                          }
                         }
                       }
-                    }
-                  )}
+                    )}
+                  </div>
                 </div>
-              </div>
+              )
+            }
           )
-        )
-      }
+        )}
       </div>
       {defaultInputField}
     </div>

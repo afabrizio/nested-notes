@@ -23158,7 +23158,8 @@
 	'use strict';
 	
 	var initialState = {
-	  selected: []
+	  lastSelected: [],
+	  nestSpawns: []
 	};
 	
 	var executeToolbarCommand = function executeToolbarCommand() {
@@ -23168,6 +23169,7 @@
 	  (function () {
 	    switch (action.type) {
 	      case 'GET_SELECTED_ELEMENTS':
+	        //identify the selected elements:
 	        var middleElementAccessors = function middleElementAccessors(length, selectedRange) {
 	          var middleElements = [];
 	          var baseAccessorString = 'selectedRange.anchorNode.parentNode';
@@ -23201,9 +23203,30 @@
 	          });
 	          selection.push(selectedEnd);
 	        }
-	
-	        state = Object.assign({}, state, { selected: selection });
+	        selection.forEach(function (word) {
+	          if (state.nestDirection === 'up') {
+	            word.classList.add('blueNest');
+	          }
+	        });
+	        state = Object.assign({}, state, {
+	          lastSelected: selection
+	        });
 	        break;
+	
+	      case 'UPDATE_NEST_SPAWNS_ARRAY':
+	        //store all nestSpawn data (location & direction) in the nestSpawns prop of the state object:
+	        var nestSpawnsCopy = state.nestSpawns.concat();
+	        var locationInfo = state.lastSelected[0].parentNode.parentNode.children;
+	        state.lastSelected.forEach(function (word, key) {
+	          return nestSpawnsCopy.push({
+	            row: parseInt(locationInfo[0].textContent),
+	            order: parseInt(locationInfo[1].textContent),
+	            sequence: 1,
+	            word: key,
+	            direction: state.nestDirection
+	          });
+	        });
+	        state = Object.assign({}, state, { nestSpawns: nestSpawnsCopy });
 	
 	      case 'STORE_NEST_DIRECTION':
 	        var nestDirectionBtn = document.getElementById('nest-direction');
@@ -23213,6 +23236,19 @@
 	          state = Object.assign({}, state, { nestDirection: 'down' });
 	        }
 	        break;
+	
+	      case 'UPDATE_LAST_SELECTED':
+	        var lastSelectedCopy = state.lastSelected.concat();
+	        lastSelectedCopy.forEach(function (element) {
+	          if (element.classList.contains('redNest')) {
+	            element.classList.remove('redNest');
+	            element.classList.add('blueNest');
+	          } else {
+	            element.classList.remove('blueNest');
+	            element.classList.add('redNest');
+	          }
+	        });
+	        state = Object.assign({}, state, { lastSelected: lastSelectedCopy });
 	
 	      default:
 	    }
@@ -23242,7 +23278,8 @@
 	    notes: state.receiveInput.notes,
 	    location: state.receiveInput.currentInputLocation,
 	    inputMarker: state.receiveInput.inputMarker,
-	    placeInputHere: state.receiveInput.placeInputHere
+	    placeInputHere: state.receiveInput.placeInputHere,
+	    nestSpawns: state.executeToolbarCommand.nestSpawns
 	  };
 	};
 	
@@ -23251,6 +23288,7 @@
 	  var location = _ref.location;
 	  var inputMarker = _ref.inputMarker;
 	  var placeInputHere = _ref.placeInputHere;
+	  var nestSpawns = _ref.nestSpawns;
 	  var dispatch = _ref.dispatch;
 	
 	  var userInputField = document.getElementById('user-input');
@@ -23274,9 +23312,9 @@
 	      })
 	    )
 	  );
-	
+	  var defaultInputField = React.createElement('div', null);
 	  if (placeInputHere === 'default') {
-	    var defaultInputField = React.createElement(
+	    defaultInputField = React.createElement(
 	      'div',
 	      { className: 'row' },
 	      React.createElement('div', { className: 'col-xs-2 col-sm-2 col-md-2 col-lg-2' }),
@@ -23305,6 +23343,24 @@
 	    );
 	  }
 	
+	  function styleNestSpawns(nestSpawns, R_key, O_key, W_key) {
+	    var className = '';
+	    nestSpawns.forEach(function (spawn) {
+	      if (spawn.row === R_key && spawn.order === O_key && spawn.word === W_key) {
+	        switch (spawn.direction) {
+	          case 'up':
+	            className = 'hasNest blueNest';
+	            break;
+	          case 'down':
+	            className = 'hasNest redNest';
+	            break;
+	          default:
+	        }
+	      }
+	    });
+	    return className;
+	  }
+	  var className = null;
 	  return React.createElement(
 	    'div',
 	    null,
@@ -23337,26 +23393,29 @@
 	            React.createElement(
 	              'div',
 	              { className: 'col-xs-10 col-sm-10 col-md-10 col-lg-10' },
-	              order.text.map(function (word, key) {
+	              order.text.map(function (word, W_key) {
 	                if (word === '*~(#)~*') {
-	                  return notDefaultInputGenerator(R_key, O_key, key);
+	                  return notDefaultInputGenerator(R_key, O_key, W_key);
 	                } else {
 	                  if (order.location[1] > 0) {
+	                    className = styleNestSpawns(nestSpawns, R_key, O_key, W_key);
 	                    return React.createElement(
 	                      'span',
-	                      { key: key, style: { color: 'rgb(12,83,148)' } },
+	                      { key: W_key, style: { color: 'rgb(12,83,148)' } },
 	                      word + ' '
 	                    );
 	                  } else if (order.location[1] < 0) {
+	                    className = styleNestSpawns(nestSpawns, R_key, O_key, W_key);
 	                    return React.createElement(
 	                      'span',
-	                      { key: key, style: { color: 'rgb(148,0,0)' } },
+	                      { key: W_key, style: { color: 'rgb(148,0,0)' } },
 	                      word + ' '
 	                    );
 	                  } else {
+	                    className = styleNestSpawns(nestSpawns, R_key, O_key, W_key);
 	                    return React.createElement(
 	                      'span',
-	                      { key: key },
+	                      { key: W_key, className: className },
 	                      word + ' '
 	                    );
 	                  }
@@ -23463,7 +23522,7 @@
 	
 	var Tools = function Tools(_ref) {
 	  var dispatch = _ref.dispatch;
-	  var selected = _ref.selected;
+	  var lastSelected = _ref.lastSelected;
 	  var nestDirection = _ref.nestDirection;
 	  var nestTargetLocation = _ref.nestTargetLocation;
 	
@@ -23505,6 +23564,8 @@
 	              toggler.className = 'nest-up';
 	            }
 	            dispatch({ type: 'STORE_NEST_DIRECTION' });
+	            dispatch({ type: 'UPDATE_LAST_SELECTED' });
+	            // dispatch({type: 'UPDATE_NEST_SPAWNS'});
 	          } })
 	      ),
 	      React.createElement('span', { className: 'fa fa-angle-down fa-2x' })
@@ -23516,7 +23577,7 @@
 	        'button',
 	        { id: 'add-nest', className: 'hidden',
 	          onClick: function onClick() {
-	            return addNest(dispatch, selected, nestDirection, nestTargetLocation);
+	            return addNest(dispatch, lastSelected, nestDirection, nestTargetLocation);
 	          }
 	        },
 	        'Add Nest'
@@ -23554,7 +23615,7 @@
 	
 	var mapStateToProps = function mapStateToProps(state) {
 	  return {
-	    selected: state.executeToolbarCommand.selected,
+	    lastSelected: state.executeToolbarCommand.lastSelected,
 	    nestDirection: state.executeToolbarCommand.nestDirection
 	  };
 	};
@@ -23572,9 +23633,10 @@
 	  document.getElementById('nest-direction-div').classList.remove('hidden');
 	  document.getElementById('add-nest').classList.remove('hidden');
 	
+	  dispatch({ type: 'STORE_NEST_DIRECTION' });
 	  dispatch({ type: 'GET_SELECTED_ELEMENTS' });
 	  dispatch({ type: 'GUIDE_TO_NEST_DIRECTION_BTN' });
-	  dispatch({ type: 'STORE_NEST_DIRECTION' });
+	  dispatch({ type: 'UPDATE_PLACE_INPUT_HERE', payload: 'not-default' });
 	};
 	
 	module.exports = getSelection;
@@ -23585,13 +23647,13 @@
 
 	'use strict';
 	
-	var addNest = function addNest(dispatch, selected, nestDirection) {
+	var addNest = function addNest(dispatch, lastSelected, nestDirection) {
 	  document.getElementById('select-text').classList.remove('hidden');
 	  document.getElementById('nest-direction-div').classList.add('hidden');
 	  document.getElementById('add-nest').classList.add('hidden');
 	
 	  //Derive nestTargetLocation:
-	  var parentDiv = selected[0].parentNode.parentNode.children;
+	  var parentDiv = lastSelected[0].parentNode.parentNode.children;
 	  var spawnLocation = [parseInt(parentDiv[0].firstChild.textContent), parseInt(parentDiv[1].firstChild.textContent), 1];
 	  var nestTargetLocation = [];
 	  switch (nestDirection) {
@@ -23607,19 +23669,6 @@
 	
 	  //Toogles the available tool buttons:
 	  dispatch({ type: 'SELECT_TEXT' });
-	
-	  //Changes text color of elements with a nest:
-	  var textColor = '';
-	  if (nestDirection === 'up') {
-	    textColor = 'blueNest';
-	  }
-	  if (nestDirection === 'down') {
-	    textColor = 'redNest';
-	  }
-	  selected.forEach(function (element) {
-	    element.classList.add('hasNest');
-	    element.classList.add(textColor);
-	  });
 	
 	  dispatch({ type: 'UPDATE_PLACE_INPUT_HERE', payload: 'not-default' });
 	
@@ -23641,6 +23690,8 @@
 	      location: nestTargetLocation
 	    }
 	  });
+	
+	  dispatch({ type: 'UPDATE_NEST_SPAWNS_ARRAY' });
 	};
 	
 	module.exports = addNest;

@@ -1,10 +1,10 @@
-const addNest = (dispatch, selected, nestDirection) => {
+const addNest = (dispatch, lastSelected, nestDirection) => {
   document.getElementById('select-text').classList.remove('hidden');
   document.getElementById('nest-direction-div').classList.add('hidden');
   document.getElementById('add-nest').classList.add('hidden');
 
   //Derive nestTargetLocation:
-  const parentDiv = selected[0].parentNode.parentNode.children;
+  const parentDiv = lastSelected[0].parentNode.parentNode.children;
   const spawnLocation = [
     parseInt(parentDiv[0].firstChild.textContent),
     parseInt(parentDiv[1].firstChild.textContent),
@@ -24,21 +24,6 @@ const addNest = (dispatch, selected, nestDirection) => {
 
   //Toogles the available tool buttons:
   dispatch({type: 'SELECT_TEXT'});
-
-  //Changes text color of elements with a nest:
-  var textColor = '';
-  if (nestDirection === 'up') {
-    textColor = 'blueNest'
-  }
-  if (nestDirection === 'down') {
-    textColor = 'redNest'
-  }
-  selected.forEach(
-    (element) => {
-      element.classList.add('hasNest');
-      element.classList.add(textColor);
-    }
-  );
 
   dispatch({type: 'UPDATE_PLACE_INPUT_HERE', payload: 'not-default'});
 
@@ -65,6 +50,8 @@ const addNest = (dispatch, selected, nestDirection) => {
       }
     }
   )
+
+  dispatch ({type: 'UPDATE_NEST_SPAWNS_ARRAY'})
 
 }
 

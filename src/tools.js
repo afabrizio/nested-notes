@@ -3,7 +3,7 @@ const {connect} = require('react-redux');
 const getSelection = require('./actions/getSelection.js');
 const addNest = require('./actions/addNest.js');
 
-const Tools = ({dispatch, selected, nestDirection, nestTargetLocation}) => {
+const Tools = ({dispatch, lastSelected, nestDirection, nestTargetLocation}) => {
   return (
     <div>
       <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="nesting-options">
@@ -25,6 +25,8 @@ const Tools = ({dispatch, selected, nestDirection, nestTargetLocation}) => {
               toggler.className = 'nest-up';
             }
             dispatch({type: 'STORE_NEST_DIRECTION'});
+            dispatch({type: 'UPDATE_LAST_SELECTED'});
+            // dispatch({type: 'UPDATE_NEST_SPAWNS'});
           }}>
           </button>
         </div>
@@ -32,7 +34,7 @@ const Tools = ({dispatch, selected, nestDirection, nestTargetLocation}) => {
       </div>
       <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <button id="add-nest" className="hidden"
-        onClick={()=>addNest(dispatch, selected, nestDirection, nestTargetLocation)}
+        onClick={()=>addNest(dispatch, lastSelected, nestDirection, nestTargetLocation)}
         >
           Add Nest
         </button>
@@ -53,7 +55,7 @@ const Tools = ({dispatch, selected, nestDirection, nestTargetLocation}) => {
 const mapStateToProps = (state) => {
   return (
     {
-      selected: state.executeToolbarCommand.selected,
+      lastSelected: state.executeToolbarCommand.lastSelected,
       nestDirection: state.executeToolbarCommand.nestDirection
     }
   )
