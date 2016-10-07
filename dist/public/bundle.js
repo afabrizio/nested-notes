@@ -23346,6 +23346,9 @@
 	  function styleNestSpawns(nestSpawns, R_key, O_key, W_key) {
 	    var className = '';
 	    nestSpawns.forEach(function (spawn) {
+	      if (spawn.direction === 'up') {
+	        O_key--;
+	      }
 	      if (spawn.row === R_key && spawn.order === O_key && spawn.word === W_key) {
 	        switch (spawn.direction) {
 	          case 'up':
@@ -23565,7 +23568,6 @@
 	            }
 	            dispatch({ type: 'STORE_NEST_DIRECTION' });
 	            dispatch({ type: 'UPDATE_LAST_SELECTED' });
-	            // dispatch({type: 'UPDATE_NEST_SPAWNS'});
 	          } })
 	      ),
 	      React.createElement('span', { className: 'fa fa-angle-down fa-2x' })
@@ -23633,10 +23635,16 @@
 	  document.getElementById('nest-direction-div').classList.remove('hidden');
 	  document.getElementById('add-nest').classList.remove('hidden');
 	
-	  dispatch({ type: 'STORE_NEST_DIRECTION' });
-	  dispatch({ type: 'GET_SELECTED_ELEMENTS' });
-	  dispatch({ type: 'GUIDE_TO_NEST_DIRECTION_BTN' });
-	  dispatch({ type: 'UPDATE_PLACE_INPUT_HERE', payload: 'not-default' });
+	  //depending on which order is being nested:
+	  if (parseInt(document.getSelection().anchorNode.parentNode.parentNode.parentNode.children[1].textContent) === 0) {
+	    dispatch({ type: 'STORE_NEST_DIRECTION' });
+	    dispatch({ type: 'GET_SELECTED_ELEMENTS' });
+	    dispatch({ type: 'UPDATE_PLACE_INPUT_HERE', payload: 'not-default' });
+	  } else {
+	    document.getElementById('nest-direction-div').classList.add('hidden');
+	    dispatch({ type: 'GET_SELECTED_ELEMENTS' });
+	    dispatch({ type: 'UPDATE_PLACE_INPUT_HERE', payload: 'not-default' });
+	  }
 	};
 	
 	module.exports = getSelection;
@@ -23648,6 +23656,15 @@
 	'use strict';
 	
 	var addNest = function addNest(dispatch, lastSelected, nestDirection) {
+	  //ensure slider is defaulted to 'nest-up' position:
+	  var nestDirectionSlider = document.getElementById('nest-direction');
+	  if (nestDirectionSlider) {
+	    if (nestDirectionSlider.classList.contains('nest-down')) {
+	      nestDirectionSlider.classList.remove('nest-down');
+	      nestDirectionSlider.classList.add('nest-up');
+	    }
+	  }
+	  //toggle button visibilities:
 	  document.getElementById('select-text').classList.remove('hidden');
 	  document.getElementById('nest-direction-div').classList.add('hidden');
 	  document.getElementById('add-nest').classList.add('hidden');

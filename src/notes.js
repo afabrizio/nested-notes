@@ -29,7 +29,7 @@ const newText  = ({notes, location, inputMarker, placeInputHere, nestSpawns, dis
         />
       </div>
     </div>
-  let defaultInputField = <div></div>  
+  let defaultInputField = <div></div>
   if(placeInputHere === 'default') {
     defaultInputField =
     <div className='row'>
@@ -56,6 +56,9 @@ const newText  = ({notes, location, inputMarker, placeInputHere, nestSpawns, dis
   function styleNestSpawns(nestSpawns, R_key, O_key, W_key) {
     var className = '';
     nestSpawns.forEach((spawn) => {
+      if(spawn.direction === 'up') {
+        O_key--
+      }
       if(spawn.row === R_key && spawn.order === O_key && spawn.word === W_key) {
         switch (spawn.direction) {
           case 'up':

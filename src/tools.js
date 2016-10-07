@@ -26,7 +26,6 @@ const Tools = ({dispatch, lastSelected, nestDirection, nestTargetLocation}) => {
             }
             dispatch({type: 'STORE_NEST_DIRECTION'});
             dispatch({type: 'UPDATE_LAST_SELECTED'});
-            // dispatch({type: 'UPDATE_NEST_SPAWNS'});
           }}>
           </button>
         </div>
