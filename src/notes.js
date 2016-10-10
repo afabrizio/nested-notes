@@ -13,6 +13,7 @@ const mapStateToProps = (state) => {
 }
 
 const newText  = ({notes, location, inputMarker, placeInputHere, nestSpawns, dispatch}) => {
+  //clear any remaining text in the input
   var userInputField = document.getElementById('user-input');
   if (userInputField) {
     userInputField.value='';
@@ -57,9 +58,9 @@ const newText  = ({notes, location, inputMarker, placeInputHere, nestSpawns, dis
     var className = '';
     nestSpawns.forEach((spawn) => {
       if(spawn.direction === 'up') {
-        O_key--
+        var O_key_adjusted = O_key - 1;
       }
-      if(spawn.row === R_key && spawn.order === O_key && spawn.word === W_key) {
+      if(spawn.row === R_key && spawn.order === O_key_adjusted && spawn.word === W_key) {
         switch (spawn.direction) {
           case 'up':
             className = 'hasNest blueNest';

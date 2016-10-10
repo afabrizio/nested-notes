@@ -23291,6 +23291,7 @@
 	  var nestSpawns = _ref.nestSpawns;
 	  var dispatch = _ref.dispatch;
 	
+	  //clear any remaining text in the input
 	  var userInputField = document.getElementById('user-input');
 	  if (userInputField) {
 	    userInputField.value = '';
@@ -23347,9 +23348,9 @@
 	    var className = '';
 	    nestSpawns.forEach(function (spawn) {
 	      if (spawn.direction === 'up') {
-	        O_key--;
+	        var O_key_adjusted = O_key - 1;
 	      }
-	      if (spawn.row === R_key && spawn.order === O_key && spawn.word === W_key) {
+	      if (spawn.row === R_key && spawn.order === O_key_adjusted && spawn.word === W_key) {
 	        switch (spawn.direction) {
 	          case 'up':
 	            className = 'hasNest blueNest';
