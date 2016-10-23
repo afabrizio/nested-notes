@@ -23311,7 +23311,7 @@
 	      { className: 'col-xs-12 col-sm-12 col-md-12 col-lg-12' },
 	      React.createElement('input', {
 	        id: 'user-input',
-	        placeholder: '[ ' + location[0] + ', ' + location[1] + ', ' + location[2] + ' ]',
+	        placeholder: 'enter text for row ' + location[0] + ', order ' + location[1] + ', sequence ' + location[2],
 	        style: { width: '100%', fontStyle: 'Italic' },
 	        onKeyUp: function onKeyUp(e) {
 	          return dispatch(receiveUserInput(e, dispatch));
@@ -23330,7 +23330,7 @@
 	        { className: 'col-xs-10 col-sm-10 col-md-10 col-lg-10' },
 	        React.createElement('input', {
 	          id: 'user-input',
-	          placeholder: '[ ' + location[0] + ', ' + location[1] + ', ' + location[2] + ' ]',
+	          placeholder: 'enter text for row ' + location[0] + ', order ' + location[1] + ', sequence ' + location[2],
 	          style: { width: '100%' },
 	          onKeyUp: function onKeyUp(e) {
 	            return dispatch(receiveUserInput(e, dispatch));
@@ -23411,14 +23411,14 @@
 	                    className = styleNestSpawns(nestSpawns, R_key, O_key, W_key);
 	                    return React.createElement(
 	                      'span',
-	                      { key: W_key, style: { color: 'rgb(12,83,148)' } },
+	                      { key: W_key, style: { color: 'rgb(12,83,148)' }, className: className },
 	                      word + ' '
 	                    );
 	                  } else if (order.location[1] < 0) {
 	                    className = styleNestSpawns(nestSpawns, R_key, O_key, W_key);
 	                    return React.createElement(
 	                      'span',
-	                      { key: W_key, style: { color: 'rgb(148,0,0)' } },
+	                      { key: W_key, style: { color: 'rgb(148,0,0)' }, className: className },
 	                      word + ' '
 	                    );
 	                  } else {
@@ -23671,7 +23671,7 @@
 	    if (selectedOrder > 0) {
 	      dispatch({ type: 'STORE_NEST_DIRECTION', payload: 'up' });
 	    }
-	    if (selectedOrder > 0) {
+	    if (selectedOrder < 0) {
 	      dispatch({ type: 'STORE_NEST_DIRECTION', payload: 'down' });
 	    }
 	    dispatch({ type: 'GET_SELECTED_ELEMENTS' });
@@ -23688,16 +23688,6 @@
 	'use strict';
 	
 	var addNest = function addNest(dispatch, lastSelected, nestDirection) {
-	  /*
-	    //ensure slider is defaulted to 'nest-up' position:
-	    const nestDirectionSlider = document.getElementById('nest-direction');
-	    if(nestDirectionSlider) {
-	      if(nestDirectionSlider.classList.contains('nest-down')) {
-	        nestDirectionSlider.classList.remove('nest-down');
-	        nestDirectionSlider.classList.add('nest-up');
-	      }
-	    }
-	  */
 	  //toggle button visibilities:
 	  document.getElementById('select-text').classList.remove('hidden');
 	  document.getElementById('nest-direction-div').classList.add('hidden');

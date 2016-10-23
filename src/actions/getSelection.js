@@ -40,7 +40,7 @@ const getSelection = (dispatch) => {
         {type: 'STORE_NEST_DIRECTION', payload: 'up'}
       );
     }
-    if(selectedOrder > 0) {
+    if(selectedOrder < 0) {
       dispatch(
         {type: 'STORE_NEST_DIRECTION', payload: 'down'}
       );
