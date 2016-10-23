@@ -61,9 +61,12 @@ const newText  = ({notes, location, inputMarker, placeInputHere, nestSpawns, dis
         var O_key_adjusted = O_key - 1;
       }
       if(spawn.row === R_key && spawn.order === O_key_adjusted && spawn.word === W_key) {
+        console.log(nestSpawns)
+        console.log('formatting '+spawn.row+spawn.order+spawn.word)
         switch (spawn.direction) {
           case 'up':
             className = 'hasNest blueNest';
+            console.log('added blue formatting to: '+spawn.row+spawn.order+spawn.word)
             break;
           case 'down':
             className = 'hasNest redNest';
@@ -82,6 +85,7 @@ const newText  = ({notes, location, inputMarker, placeInputHere, nestSpawns, dis
         (row, R_key) =>
           row.order.map(
             (order, O_key) => {
+              console.log('---------order incremented--------')
               return(
                 <div className='row'>
                   <div className='col-xs-1 col-sm-1 col-md-1 col-lg-1'>
@@ -92,13 +96,15 @@ const newText  = ({notes, location, inputMarker, placeInputHere, nestSpawns, dis
                   </div>
                   <div className='col-xs-10 col-sm-10 col-md-10 col-lg-10'>
                     {order.text.map(
-                      (word,W_key) => {
+                      (word, W_key) => {
                         if(word === '*~(#)~*'){
                           return notDefaultInputGenerator(R_key, O_key, W_key);
                         }
                         else {
+                          console.log('order: '+order.location[1])
                           if(order.location[1] > 0) {
                             className = styleNestSpawns(nestSpawns, R_key, O_key, W_key);
+                            console.log('word '+W_key+' has the className '+className)
                             return (
                               <span key={W_key} style={{color: 'rgb(12,83,148)'}} className={className}>
                                 {word + ' '}

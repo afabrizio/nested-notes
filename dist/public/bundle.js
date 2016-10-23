@@ -23160,7 +23160,7 @@
 	'use strict';
 	
 	var initialState = {
-	  lastSelected: [],
+	  lastSelected: {},
 	  nestSpawns: []
 	};
 	
@@ -23171,7 +23171,6 @@
 	  (function () {
 	    switch (action.type) {
 	      case 'GET_SELECTED_ELEMENTS':
-	        //identify the selected elements:
 	        var middleElementAccessors = function middleElementAccessors(length, selectedRange) {
 	          var middleElements = [];
 	          var baseAccessorString = 'selectedRange.anchorNode.parentNode';
@@ -23186,26 +23185,35 @@
 	          }
 	          return middleElementsAccessors;
 	        };
+	        //identify the selected elements:
 	
-	        var selection = [];
+	
+	        var selection = {};
+	        selection.selected = [];
 	        var selectedRange = document.getSelection();
 	        var selectedStart = selectedRange.anchorNode.parentNode;
+	        Array.from(selectedStart.parentNode.children).forEach(function (span, key) {
+	          if (span === selectedStart) {
+	            console.log('offset is ' + key);
+	            selection.offset = key;
+	          }
+	        });
 	        var selectedEnd = selectedRange.focusNode.parentNode;
 	        var selectedLength = selectedRange.toString().split(' ').length;
 	        if (selectedLength === 1) {
-	          selection.push(selectedStart);
+	          selection.selected.push(selectedStart);
 	        } else {
 	          var middleElements = middleElementAccessors(selectedLength - 2, selectedRange).map(function (accessor) {
 	            return eval(accessor);
 	          });
 	          var nextElement = selectedStart.nextSibling;
-	          selection.push(selectedStart);
+	          selection.selected.push(selectedStart);
 	          middleElements.forEach(function (element) {
-	            return selection.push(element);
+	            return selection.selected.push(element);
 	          });
-	          selection.push(selectedEnd);
+	          selection.selected.push(selectedEnd);
 	        }
-	        selection.forEach(function (word) {
+	        selection.selected.forEach(function (word) {
 	          if (state.nestDirection === 'up') {
 	            word.classList.add('blueNest');
 	          }
@@ -23219,19 +23227,20 @@
 	        break;
 	
 	      case 'UPDATE_NEST_SPAWNS_ARRAY':
-	        //store all nestSpawn data (location & direction) in the nestSpawns prop of the state object:
+	        //store all nestSpawn data (location & direction) in the nestSpawns property of the state object:
 	        var nestSpawnsCopy = state.nestSpawns.concat();
-	        var locationInfo = state.lastSelected[0].parentNode.parentNode.children;
-	        state.lastSelected.forEach(function (word, key) {
+	        var locationInfo = state.lastSelected.selected[0].parentNode.parentNode.children;
+	        state.lastSelected.selected.forEach(function (word, key) {
 	          return nestSpawnsCopy.push({
 	            row: parseInt(locationInfo[0].textContent),
 	            order: parseInt(locationInfo[1].textContent),
 	            sequence: 1,
-	            word: key,
+	            word: key + state.lastSelected.offset,
 	            direction: state.nestDirection
 	          });
 	        });
 	        state = Object.assign({}, state, { nestSpawns: nestSpawnsCopy });
+	        break;
 	
 	      case 'STORE_NEST_DIRECTION':
 	        switch (action.payload) {
@@ -23244,17 +23253,21 @@
 	          default:
 	            state = Object.assign({}, state);
 	        }
+	        break;
 	
 	      case 'UPDATE_LAST_SELECTED':
-	        var lastSelectedCopy = state.lastSelected.concat();
-	        lastSelectedCopy.forEach(function (element) {
-	          if (state.nestDirection === 'up') {
-	            element.className = 'blueNest';
-	          } else {
-	            element.className = 'redNest';
-	          }
-	        });
+	        var lastSelectedCopy = Object.assign({}, state.lastSelected);
+	        if (lastSelectedCopy.selected) {
+	          lastSelectedCopy.selected.forEach(function (element) {
+	            if (state.nestDirection === 'up') {
+	              element.className = 'blueNest';
+	            } else {
+	              element.className = 'redNest';
+	            }
+	          });
+	        }
 	        state = Object.assign({}, state, { lastSelected: lastSelectedCopy });
+	        break;
 	
 	      default:
 	    }
@@ -23357,9 +23370,12 @@
 	        var O_key_adjusted = O_key - 1;
 	      }
 	      if (spawn.row === R_key && spawn.order === O_key_adjusted && spawn.word === W_key) {
+	        console.log(nestSpawns);
+	        console.log('formatting ' + spawn.row + spawn.order + spawn.word);
 	        switch (spawn.direction) {
 	          case 'up':
 	            className = 'hasNest blueNest';
+	            console.log('added blue formatting to: ' + spawn.row + spawn.order + spawn.word);
 	            break;
 	          case 'down':
 	            className = 'hasNest redNest';
@@ -23379,6 +23395,7 @@
 	      null,
 	      notes.map(function (row, R_key) {
 	        return row.order.map(function (order, O_key) {
+	          console.log('---------order incremented--------');
 	          return React.createElement(
 	            'div',
 	            { className: 'row' },
@@ -23407,8 +23424,10 @@
 	                if (word === '*~(#)~*') {
 	                  return notDefaultInputGenerator(R_key, O_key, W_key);
 	                } else {
+	                  console.log('order: ' + order.location[1]);
 	                  if (order.location[1] > 0) {
 	                    className = styleNestSpawns(nestSpawns, R_key, O_key, W_key);
+	                    console.log('word ' + W_key + ' has the className ' + className);
 	                    return React.createElement(
 	                      'span',
 	                      { key: W_key, style: { color: 'rgb(12,83,148)' }, className: className },
@@ -23694,7 +23713,7 @@
 	  document.getElementById('add-nest').classList.add('hidden');
 	
 	  //Derive nestTargetLocation:
-	  var parentDiv = lastSelected[0].parentNode.parentNode.children;
+	  var parentDiv = lastSelected.selected[0].parentNode.parentNode.children;
 	  var spawnLocation = [parseInt(parentDiv[0].firstChild.textContent), parseInt(parentDiv[1].firstChild.textContent), 1];
 	  var nestTargetLocation = [];
 	  switch (nestDirection) {
@@ -23706,7 +23725,8 @@
 	      break;
 	    default:
 	  }
-	  //should dispatch an action here to update the state object with the current # of sequences associated with this particular row&order!
+	
+	  dispatch({ type: 'UPDATE_NEST_SPAWNS_ARRAY' });
 	
 	  //Toogles the available tool buttons:
 	  dispatch({ type: 'SELECT_TEXT' });
@@ -23731,8 +23751,6 @@
 	      location: nestTargetLocation
 	    }
 	  });
-	
-	  dispatch({ type: 'UPDATE_NEST_SPAWNS_ARRAY' });
 	};
 	
 	module.exports = addNest;

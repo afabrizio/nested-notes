@@ -5,7 +5,7 @@ const addNest = (dispatch, lastSelected, nestDirection) => {
   document.getElementById('add-nest').classList.add('hidden');
 
   //Derive nestTargetLocation:
-  const parentDiv = lastSelected[0].parentNode.parentNode.children;
+  const parentDiv = lastSelected.selected[0].parentNode.parentNode.children;
   const spawnLocation = [
     parseInt(parentDiv[0].firstChild.textContent),
     parseInt(parentDiv[1].firstChild.textContent),
@@ -21,7 +21,8 @@ const addNest = (dispatch, lastSelected, nestDirection) => {
       break;
     default:
   }
-  //should dispatch an action here to update the state object with the current # of sequences associated with this particular row&order!
+
+  dispatch ({type: 'UPDATE_NEST_SPAWNS_ARRAY'})
 
   //Toogles the available tool buttons:
   dispatch({type: 'SELECT_TEXT'});
@@ -51,8 +52,6 @@ const addNest = (dispatch, lastSelected, nestDirection) => {
       }
     }
   )
-
-  dispatch ({type: 'UPDATE_NEST_SPAWNS_ARRAY'})
 
 }
 
