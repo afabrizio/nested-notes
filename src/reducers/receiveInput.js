@@ -63,14 +63,14 @@ const receiveInput = (state=initialState, action) => {
         let notesCopy1 = state.notes.concat();
         let orders = notesCopy1[targetLocation[0]].order;
         for (let i=0; i<orders.length; i++) {
-          if (orders[i].location[1] - targetLocation[1] === -1) {
-            orders.splice(i-1, 0,
+          if (orders[i].location[1] - targetLocation[1] === -1) { //nesting up
+            orders.splice(i, 0,
               {location: [targetLocation[0], targetLocation[1], null], text: ['*~(#)~*']}
             )
             break;
           }
-          if (orders[i].location[1] - targetLocation[1] === 1) {
-            orders.splice(i+1, 0,
+          if (orders[i].location[1] - targetLocation[1] === 1) { //nesting down
+            orders.push(
               {location: [targetLocation[0], targetLocation[1], null], text: ['*~(#)~*']}
             )
             break;

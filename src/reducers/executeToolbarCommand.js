@@ -42,6 +42,9 @@ const executeToolbarCommand = (state = initialState, action) => {
         if(state.nestDirection === 'up') {
           word.classList.add('blueNest');
         }
+        if(state.nestDirection === 'down') {
+          word.classList.add('redNest');
+        }
       });
       state = Object.assign({}, state,
         {
@@ -68,23 +71,24 @@ const executeToolbarCommand = (state = initialState, action) => {
       state = Object.assign({}, state, {nestSpawns: nestSpawnsCopy});
 
     case 'STORE_NEST_DIRECTION':
-      const nestDirectionBtn = document.getElementById('nest-direction');
-      if (nestDirectionBtn.className === 'nest-up') {
-        state = Object.assign({}, state, {nestDirection: 'up'});
-      } else {
-        state = Object.assign({}, state, {nestDirection: 'down'});
+      switch (action.payload) {
+        case 'up':
+          state = Object.assign({}, state, {nestDirection: 'up'});
+          break;
+        case 'down':
+          state = Object.assign({}, state, {nestDirection: 'down'});
+          break;
+        default:
+          state = Object.assign({}, state);
       }
-      break;
 
     case 'UPDATE_LAST_SELECTED':
       let lastSelectedCopy = state.lastSelected.concat();
       lastSelectedCopy.forEach((element) => {
-        if (element.classList.contains('redNest')) {
-          element.classList.remove('redNest');
-          element.classList.add('blueNest');
+        if (state.nestDirection === 'up') {
+          element.className = 'blueNest';
         } else {
-          element.classList.remove('blueNest');
-          element.classList.add('redNest');
+          element.className = 'redNest';
         }
       });
       state = Object.assign({}, state, {lastSelected: lastSelectedCopy});

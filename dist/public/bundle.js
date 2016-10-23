@@ -23125,11 +23125,13 @@
 	      var orders = notesCopy1[targetLocation[0]].order;
 	      for (var i = 0; i < orders.length; i++) {
 	        if (orders[i].location[1] - targetLocation[1] === -1) {
-	          orders.splice(i - 1, 0, { location: [targetLocation[0], targetLocation[1], null], text: ['*~(#)~*'] });
+	          //nesting up
+	          orders.splice(i, 0, { location: [targetLocation[0], targetLocation[1], null], text: ['*~(#)~*'] });
 	          break;
 	        }
 	        if (orders[i].location[1] - targetLocation[1] === 1) {
-	          orders.splice(i + 1, 0, { location: [targetLocation[0], targetLocation[1], null], text: ['*~(#)~*'] });
+	          //nesting down
+	          orders.push({ location: [targetLocation[0], targetLocation[1], null], text: ['*~(#)~*'] });
 	          break;
 	        }
 	      }
@@ -23207,6 +23209,9 @@
 	          if (state.nestDirection === 'up') {
 	            word.classList.add('blueNest');
 	          }
+	          if (state.nestDirection === 'down') {
+	            word.classList.add('redNest');
+	          }
 	        });
 	        state = Object.assign({}, state, {
 	          lastSelected: selection
@@ -23229,23 +23234,24 @@
 	        state = Object.assign({}, state, { nestSpawns: nestSpawnsCopy });
 	
 	      case 'STORE_NEST_DIRECTION':
-	        var nestDirectionBtn = document.getElementById('nest-direction');
-	        if (nestDirectionBtn.className === 'nest-up') {
-	          state = Object.assign({}, state, { nestDirection: 'up' });
-	        } else {
-	          state = Object.assign({}, state, { nestDirection: 'down' });
+	        switch (action.payload) {
+	          case 'up':
+	            state = Object.assign({}, state, { nestDirection: 'up' });
+	            break;
+	          case 'down':
+	            state = Object.assign({}, state, { nestDirection: 'down' });
+	            break;
+	          default:
+	            state = Object.assign({}, state);
 	        }
-	        break;
 	
 	      case 'UPDATE_LAST_SELECTED':
 	        var lastSelectedCopy = state.lastSelected.concat();
 	        lastSelectedCopy.forEach(function (element) {
-	          if (element.classList.contains('redNest')) {
-	            element.classList.remove('redNest');
-	            element.classList.add('blueNest');
+	          if (state.nestDirection === 'up') {
+	            element.className = 'blueNest';
 	          } else {
-	            element.classList.remove('blueNest');
-	            element.classList.add('redNest');
+	            element.className = 'redNest';
 	          }
 	        });
 	        state = Object.assign({}, state, { lastSelected: lastSelectedCopy });
@@ -23564,11 +23570,13 @@
 	            var toggler = e.target.parentNode;
 	            if (toggler.className === 'nest-up') {
 	              toggler.className = 'nest-down';
+	              dispatch({ type: 'STORE_NEST_DIRECTION', payload: 'down' });
+	              dispatch({ type: 'UPDATE_LAST_SELECTED' });
 	            } else {
 	              toggler.className = 'nest-up';
+	              dispatch({ type: 'STORE_NEST_DIRECTION', payload: 'up' });
+	              dispatch({ type: 'UPDATE_LAST_SELECTED' });
 	            }
-	            dispatch({ type: 'STORE_NEST_DIRECTION' });
-	            dispatch({ type: 'UPDATE_LAST_SELECTED' });
 	          } })
 	      ),
 	      React.createElement('span', { className: 'fa fa-angle-down fa-2x' })
@@ -23632,17 +23640,40 @@
 	'use strict';
 	
 	var getSelection = function getSelection(dispatch) {
+	  //catch selection errors
+	  try {
+	    document.getSelection().anchorNode.parentNode.parentNode.parentNode.children[1].textContent;
+	  } catch (e) {
+	    console.log('selection error identified');
+	    return;
+	  }
+	  if (isNaN(parseInt(document.getSelection().anchorNode.parentNode.parentNode.parentNode.children[1].textContent)) === true) {
+	    return;
+	  }
+	
+	  //toggle button visibilities
 	  document.getElementById('select-text').classList.add('hidden');
 	  document.getElementById('nest-direction-div').classList.remove('hidden');
 	  document.getElementById('add-nest').classList.remove('hidden');
 	
-	  //depending on which order is being nested:
-	  if (parseInt(document.getSelection().anchorNode.parentNode.parentNode.parentNode.children[1].textContent) === 0) {
-	    dispatch({ type: 'STORE_NEST_DIRECTION' });
+	  //handle nesting from order=0 cases separately:
+	  var selectedOrder = parseInt(document.getSelection().anchorNode.parentNode.parentNode.parentNode.children[1].textContent);
+	  if (selectedOrder === 0) {
+	    if (document.getElementById('nest-direction').classList.contains('nest-up')) {
+	      dispatch({ type: 'STORE_NEST_DIRECTION', payload: 'up' });
+	    } else {
+	      dispatch({ type: 'STORE_NEST_DIRECTION', payload: 'down' });
+	    }
 	    dispatch({ type: 'GET_SELECTED_ELEMENTS' });
 	    dispatch({ type: 'UPDATE_PLACE_INPUT_HERE', payload: 'not-default' });
 	  } else {
 	    document.getElementById('nest-direction-div').classList.add('hidden');
+	    if (selectedOrder > 0) {
+	      dispatch({ type: 'STORE_NEST_DIRECTION', payload: 'up' });
+	    }
+	    if (selectedOrder > 0) {
+	      dispatch({ type: 'STORE_NEST_DIRECTION', payload: 'down' });
+	    }
 	    dispatch({ type: 'GET_SELECTED_ELEMENTS' });
 	    dispatch({ type: 'UPDATE_PLACE_INPUT_HERE', payload: 'not-default' });
 	  }
@@ -23657,14 +23688,16 @@
 	'use strict';
 	
 	var addNest = function addNest(dispatch, lastSelected, nestDirection) {
-	  //ensure slider is defaulted to 'nest-up' position:
-	  var nestDirectionSlider = document.getElementById('nest-direction');
-	  if (nestDirectionSlider) {
-	    if (nestDirectionSlider.classList.contains('nest-down')) {
-	      nestDirectionSlider.classList.remove('nest-down');
-	      nestDirectionSlider.classList.add('nest-up');
+	  /*
+	    //ensure slider is defaulted to 'nest-up' position:
+	    const nestDirectionSlider = document.getElementById('nest-direction');
+	    if(nestDirectionSlider) {
+	      if(nestDirectionSlider.classList.contains('nest-down')) {
+	        nestDirectionSlider.classList.remove('nest-down');
+	        nestDirectionSlider.classList.add('nest-up');
+	      }
 	    }
-	  }
+	  */
 	  //toggle button visibilities:
 	  document.getElementById('select-text').classList.remove('hidden');
 	  document.getElementById('nest-direction-div').classList.add('hidden');
@@ -23676,10 +23709,10 @@
 	  var nestTargetLocation = [];
 	  switch (nestDirection) {
 	    case 'up':
-	      nestTargetLocation = [spawnLocation[0], spawnLocation[1] + 1, spawnLocation[1]];
+	      nestTargetLocation = [spawnLocation[0], spawnLocation[1] + 1, spawnLocation[2]];
 	      break;
 	    case 'down':
-	      nestTargetLocation = [spawnLocation[0], spawnLocation[1] - 1, spawnLocation[1]];
+	      nestTargetLocation = [spawnLocation[0], spawnLocation[1] - 1, spawnLocation[2]];
 	      break;
 	    default:
 	  }

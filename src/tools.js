@@ -21,11 +21,13 @@ const Tools = ({dispatch, lastSelected, nestDirection, nestTargetLocation}) => {
             var toggler = e.target.parentNode;
             if (toggler.className === 'nest-up') {
               toggler.className = 'nest-down';
+              dispatch({type: 'STORE_NEST_DIRECTION', payload: 'down'});
+              dispatch({type: 'UPDATE_LAST_SELECTED'});
             } else {
               toggler.className = 'nest-up';
+              dispatch({type: 'STORE_NEST_DIRECTION', payload: 'up'});
+              dispatch({type: 'UPDATE_LAST_SELECTED'});
             }
-            dispatch({type: 'STORE_NEST_DIRECTION'});
-            dispatch({type: 'UPDATE_LAST_SELECTED'});
           }}>
           </button>
         </div>

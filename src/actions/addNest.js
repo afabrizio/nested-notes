@@ -1,4 +1,5 @@
 const addNest = (dispatch, lastSelected, nestDirection) => {
+/*
   //ensure slider is defaulted to 'nest-up' position:
   const nestDirectionSlider = document.getElementById('nest-direction');
   if(nestDirectionSlider) {
@@ -7,6 +8,7 @@ const addNest = (dispatch, lastSelected, nestDirection) => {
       nestDirectionSlider.classList.add('nest-up');
     }
   }
+*/
   //toggle button visibilities:
   document.getElementById('select-text').classList.remove('hidden');
   document.getElementById('nest-direction-div').classList.add('hidden');
@@ -22,10 +24,10 @@ const addNest = (dispatch, lastSelected, nestDirection) => {
   var nestTargetLocation = [];
   switch (nestDirection) {
     case 'up':
-      nestTargetLocation = [spawnLocation[0], spawnLocation[1]+1, spawnLocation[1]];
+      nestTargetLocation = [spawnLocation[0], spawnLocation[1]+1, spawnLocation[2]];
       break;
     case 'down':
-      nestTargetLocation = [spawnLocation[0], spawnLocation[1]-1, spawnLocation[1]];
+      nestTargetLocation = [spawnLocation[0], spawnLocation[1]-1, spawnLocation[2]];
       break;
     default:
   }
