@@ -54,10 +54,10 @@ const newText  = ({notes, location, inputMarker, placeInputHere, nestSpawns, dis
     return <div key={key}>{nestInputField}</div>
   }
 
-  function styleNestSpawns(nestSpawns, R_key, O_key, W_key, location) {
+  function styleNestSpawns(nestSpawns, currentRenderLocation, W_key) {
     var className = '';
     nestSpawns.forEach((spawn) => {
-      if(spawn.row === location[0] && spawn.order === location[1] && spawn.word === W_key) {
+      if(spawn.row === currentRenderLocation[0] && spawn.order === currentRenderLocation[1] && spawn.word === W_key) {
         switch (spawn.direction) {
           case 'up':
             className = 'hasNest blueNest';
@@ -95,20 +95,20 @@ const newText  = ({notes, location, inputMarker, placeInputHere, nestSpawns, dis
                         }
                         else {
                           if(order.location[1] > 0) {
-                            className = styleNestSpawns(nestSpawns, R_key, O_key, W_key, order.location);
+                            className = styleNestSpawns(nestSpawns, order.location, W_key);
                             return (
                               <span key={W_key} style={{color: 'rgb(12,83,148)'}} className={className}>
                                 {word + ' '}
                               </span>)
                           } else if(order.location[1] < 0) {
-                            className = styleNestSpawns(nestSpawns, R_key, O_key, W_key, order.location);
+                            className = styleNestSpawns(nestSpawns, order.location, W_key);
                             return (
                               <span key={W_key} style={{color: 'rgb(148,0,0)'}} className={className}>
                                 {word + ' '}
                               </span>)
                           }
                           else {
-                            className = styleNestSpawns(nestSpawns, R_key, O_key, W_key, order.location);
+                            className = styleNestSpawns(nestSpawns, order.location, W_key);
                             return (
                               <span key={W_key} className={className}>
                                 {word + ' '}
