@@ -28,7 +28,6 @@ const executeToolbarCommand = (state = initialState, action) => {
       const selectedStart = selectedRange.anchorNode.parentNode;
       Array.from(selectedStart.parentNode.children).forEach( (span, key) => {
         if(span === selectedStart) {
-          console.log('offset is ' + key)
           selection.offset = key;
         }
       })

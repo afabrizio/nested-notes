@@ -54,19 +54,13 @@ const newText  = ({notes, location, inputMarker, placeInputHere, nestSpawns, dis
     return <div key={key}>{nestInputField}</div>
   }
 
-  function styleNestSpawns(nestSpawns, R_key, O_key, W_key) {
+  function styleNestSpawns(nestSpawns, R_key, O_key, W_key, location) {
     var className = '';
     nestSpawns.forEach((spawn) => {
-      if(spawn.direction === 'up') {
-        var O_key_adjusted = O_key - 1;
-      }
-      if(spawn.row === R_key && spawn.order === O_key_adjusted && spawn.word === W_key) {
-        console.log(nestSpawns)
-        console.log('formatting '+spawn.row+spawn.order+spawn.word)
+      if(spawn.row === location[0] && spawn.order === location[1] && spawn.word === W_key) {
         switch (spawn.direction) {
           case 'up':
             className = 'hasNest blueNest';
-            console.log('added blue formatting to: '+spawn.row+spawn.order+spawn.word)
             break;
           case 'down':
             className = 'hasNest redNest';
@@ -85,7 +79,6 @@ const newText  = ({notes, location, inputMarker, placeInputHere, nestSpawns, dis
         (row, R_key) =>
           row.order.map(
             (order, O_key) => {
-              console.log('---------order incremented--------')
               return(
                 <div className='row'>
                   <div className='col-xs-1 col-sm-1 col-md-1 col-lg-1'>
@@ -98,26 +91,24 @@ const newText  = ({notes, location, inputMarker, placeInputHere, nestSpawns, dis
                     {order.text.map(
                       (word, W_key) => {
                         if(word === '*~(#)~*'){
-                          return notDefaultInputGenerator(R_key, O_key, W_key);
+                          return notDefaultInputGenerator(R_key, O_key, W_key, order.location);
                         }
                         else {
-                          console.log('order: '+order.location[1])
                           if(order.location[1] > 0) {
-                            className = styleNestSpawns(nestSpawns, R_key, O_key, W_key);
-                            console.log('word '+W_key+' has the className '+className)
+                            className = styleNestSpawns(nestSpawns, R_key, O_key, W_key, order.location);
                             return (
                               <span key={W_key} style={{color: 'rgb(12,83,148)'}} className={className}>
                                 {word + ' '}
                               </span>)
                           } else if(order.location[1] < 0) {
-                            className = styleNestSpawns(nestSpawns, R_key, O_key, W_key);
+                            className = styleNestSpawns(nestSpawns, R_key, O_key, W_key, order.location);
                             return (
                               <span key={W_key} style={{color: 'rgb(148,0,0)'}} className={className}>
                                 {word + ' '}
                               </span>)
                           }
                           else {
-                            className = styleNestSpawns(nestSpawns, R_key, O_key, W_key);
+                            className = styleNestSpawns(nestSpawns, R_key, O_key, W_key, order.location);
                             return (
                               <span key={W_key} className={className}>
                                 {word + ' '}

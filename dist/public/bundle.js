@@ -23194,7 +23194,6 @@
 	        var selectedStart = selectedRange.anchorNode.parentNode;
 	        Array.from(selectedStart.parentNode.children).forEach(function (span, key) {
 	          if (span === selectedStart) {
-	            console.log('offset is ' + key);
 	            selection.offset = key;
 	          }
 	        });
@@ -23363,19 +23362,13 @@
 	    );
 	  }
 	
-	  function styleNestSpawns(nestSpawns, R_key, O_key, W_key) {
+	  function styleNestSpawns(nestSpawns, R_key, O_key, W_key, location) {
 	    var className = '';
 	    nestSpawns.forEach(function (spawn) {
-	      if (spawn.direction === 'up') {
-	        var O_key_adjusted = O_key - 1;
-	      }
-	      if (spawn.row === R_key && spawn.order === O_key_adjusted && spawn.word === W_key) {
-	        console.log(nestSpawns);
-	        console.log('formatting ' + spawn.row + spawn.order + spawn.word);
+	      if (spawn.row === location[0] && spawn.order === location[1] && spawn.word === W_key) {
 	        switch (spawn.direction) {
 	          case 'up':
 	            className = 'hasNest blueNest';
-	            console.log('added blue formatting to: ' + spawn.row + spawn.order + spawn.word);
 	            break;
 	          case 'down':
 	            className = 'hasNest redNest';
@@ -23395,7 +23388,6 @@
 	      null,
 	      notes.map(function (row, R_key) {
 	        return row.order.map(function (order, O_key) {
-	          console.log('---------order incremented--------');
 	          return React.createElement(
 	            'div',
 	            { className: 'row' },
@@ -23422,26 +23414,24 @@
 	              { className: 'col-xs-10 col-sm-10 col-md-10 col-lg-10' },
 	              order.text.map(function (word, W_key) {
 	                if (word === '*~(#)~*') {
-	                  return notDefaultInputGenerator(R_key, O_key, W_key);
+	                  return notDefaultInputGenerator(R_key, O_key, W_key, order.location);
 	                } else {
-	                  console.log('order: ' + order.location[1]);
 	                  if (order.location[1] > 0) {
-	                    className = styleNestSpawns(nestSpawns, R_key, O_key, W_key);
-	                    console.log('word ' + W_key + ' has the className ' + className);
+	                    className = styleNestSpawns(nestSpawns, R_key, O_key, W_key, order.location);
 	                    return React.createElement(
 	                      'span',
 	                      { key: W_key, style: { color: 'rgb(12,83,148)' }, className: className },
 	                      word + ' '
 	                    );
 	                  } else if (order.location[1] < 0) {
-	                    className = styleNestSpawns(nestSpawns, R_key, O_key, W_key);
+	                    className = styleNestSpawns(nestSpawns, R_key, O_key, W_key, order.location);
 	                    return React.createElement(
 	                      'span',
 	                      { key: W_key, style: { color: 'rgb(148,0,0)' }, className: className },
 	                      word + ' '
 	                    );
 	                  } else {
-	                    className = styleNestSpawns(nestSpawns, R_key, O_key, W_key);
+	                    className = styleNestSpawns(nestSpawns, R_key, O_key, W_key, order.location);
 	                    return React.createElement(
 	                      'span',
 	                      { key: W_key, className: className },
