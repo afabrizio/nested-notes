@@ -24,7 +24,7 @@ const newText  = ({notes, location, inputMarker, placeInputHere, nestSpawns, dis
       <div className='col-xs-12 col-sm-12 col-md-12 col-lg-12'>
         <input
           id='user-input'
-          placeholder={'enter text for row '+location[0]+', order '+location[1]+', sequence '+location[2]}
+          placeholder={'enter text for row '+location[0]+', order '+location[1]}
           style={{width: '100%', fontStyle: 'Italic'}}
           onKeyUp={(e) => dispatch(receiveUserInput(e, dispatch))}
         />
@@ -39,7 +39,7 @@ const newText  = ({notes, location, inputMarker, placeInputHere, nestSpawns, dis
       <div className='col-xs-10 col-sm-10 col-md-10 col-lg-10'>
         <input
           id='user-input'
-          placeholder={'enter text for row '+location[0]+', order '+location[1]+', sequence '+location[2]}
+          placeholder={'enter text for row '+location[0]+', order '+location[1]}
           style={{width: '100%'}}
           onKeyUp={(e) => dispatch(receiveUserInput(e, dispatch))}
         />
