@@ -1,6 +1,6 @@
 const ReactDOM = require('react-dom');
 const React = require('react');
-const {Provider} = require('react-redux');
+const { Provider } = require('react-redux');
 const store = require('./store.js');
 const Notes = require('./notes.js');
 const Tools = require('./tools.js');
