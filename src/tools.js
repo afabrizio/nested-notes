@@ -40,15 +40,6 @@ const Tools = ({dispatch, lastSelected, nestDirection, nestTargetLocation}) => {
           Add Nest
         </button>
       </div>
-      <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="order-options">
-        <b>Order Options</b>
-      </div>
-      <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-        <button id="select-order" className="grayed">Select Order</button>
-      </div>
-      <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-        <button id="delete-order" className="grayed">Delete Order</button>
-      </div>
     </div>
   )
 }
